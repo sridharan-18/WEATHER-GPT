@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
 import {
   AlertTriangle,
   Cloud,
@@ -376,7 +376,7 @@ export default function Home() {
   )
 }
 
-function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function Metric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className="p-4 bg-gray-50 rounded-xl">
       <div className="flex items-center gap-2 text-gray-500 mb-2">{icon}<span className="text-sm">{label}</span></div>
