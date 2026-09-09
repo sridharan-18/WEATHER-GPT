@@ -1,106 +1,25 @@
-# WeatherGPT — Hyperlocal Weather Risk Intelligence
+# WeatherGPT
 
-Turn raw meteorological data into a 0-100 safety score, explainable alerts and actionable advice.
+WeatherGPT is a hyperlocal weather intelligence and action assistant. The current prototype provides live forecast data, location search, browser geolocation, a transparent weather-risk score, 12-hour and 7-day forecasts, farmer decision support, and a rule-based conversational assistant.
 
-## Features
+## Key features
+- Live weather and forecast data from Open-Meteo
+- Search any location or use browser location
+- Transparent 0-100 weather risk score with reasons and actions
+- 12-hour precipitation and temperature outlook
+- 7-day forecast
+- Farmer support for irrigation, spraying and field work
+- Conversational questions about rain, travel, farming and heat
+- Responsive Next.js + TypeScript + Tailwind UI
 
-- **Weather Safety Score**: 0-100 safety score based on current conditions
-- **Live Conditions**: Real-time weather data display
-- **12-Hour Risk Forecast**: Predictive risk assessment
-- **Hazard Breakdown**: Detailed hazard analysis
-- **Actions for Farmer**: Actionable recommendations
-- **Hazard Map**: Interactive weather visualization (Phase 2)
-- **WeatherGPT Assistant**: Conversational AI for weather insights (Phase 2)
-
-## Tech Stack
-
-- **Frontend**: Next.js 14 with TypeScript
-- **UI Components**: shadcn/ui
-- **Styling**: Tailwind CSS
-- **Weather API**: OpenWeatherMap
-- **State Management**: React Context
-- **Icons**: Lucide React
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-- OpenWeatherMap API key
-
-### Installation
+## Run locally
 
 ```bash
-# Install dependencies
 npm install
-
-# Set up environment variables
-cp .env.example .env.local
-
-# Add your OpenWeatherMap API key to .env.local
-NEXT_PUBLIC_OPENWEATHER_API_KEY=your_api_key_here
-
-# Run development server
 npm run dev
 ```
 
-### Environment Variables
+Open `http://localhost:3000`.
 
-```
-NEXT_PUBLIC_OPENWEATHER_API_KEY=your_openweathermap_api_key
-```
-
-## Project Structure
-
-```
-WeatherGPT/
-├── src/
-│   ├── app/              # Next.js app directory
-│   ├── components/       # React components
-│   ├── lib/             # Utility functions
-│   ├── types/           # TypeScript types
-│   └── hooks/           # Custom React hooks
-├── public/              # Static assets
-└── package.json
-```
-
-## Features Overview
-
-### Weather Safety Score Algorithm
-
-The safety score (0-100) is calculated based on:
-- Temperature extremes
-- Precipitation intensity
-- Wind speed
-- Visibility
-- Severe weather alerts
-- Historical risk patterns
-
-### Risk Categories
-
-- **0-20**: Critical Risk - Take immediate shelter
-- **21-40**: High Risk - Avoid outdoor activities
-- **41-60**: Moderate Risk - Exercise caution
-- **61-80**: Low Risk - Normal activities
-- **81-100**: Safe - Ideal conditions
-
-## API Integration
-
-Uses OpenWeatherMap API for:
-- Current weather data
-- 12-hour forecast
-- Weather alerts
-- Historical data
-
-## Future Enhancements (Phase 2)
-
-- Interactive Leaflet hazard maps
-- WeatherGPT conversational assistant
-- Multi-location support
-- Historical risk analytics
-- Mobile app
-
-## License
-
-MIT
+## Data
+Weather data is retrieved at runtime from Open-Meteo. The risk score is a decision-support heuristic and should not replace official emergency or meteorological alerts.
