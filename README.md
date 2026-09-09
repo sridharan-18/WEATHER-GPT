@@ -1,105 +1,75 @@
 # WeatherGPT — Hyperlocal Weather Risk Intelligence
 
-Turn raw meteorological data into a 0-100 safety score, explainable alerts and actionable advice.
+WeatherGPT turns live meteorological data into a 0–100 safety score, explainable hazards and actionable weather advice.
 
-## Features
+## Current features
 
-- **Weather Safety Score**: 0-100 safety score based on current conditions
-- **Live Conditions**: Real-time weather data display
-- **12-Hour Risk Forecast**: Predictive risk assessment
-- **Hazard Breakdown**: Detailed hazard analysis
-- **Actions for Farmer**: Actionable recommendations
-- **Hazard Map**: Interactive weather visualization (Phase 2)
-- **WeatherGPT Assistant**: Conversational AI for weather insights (Phase 2)
+- **Live weather data** using Open-Meteo
+- **Location search** for cities and towns
+- **Use My Location** with browser geolocation
+- **Weather Safety Score** calculated from live conditions
+- **Explainable risk factors** showing why risk changes
+- **Live Conditions** for temperature, feels-like temperature, humidity, wind, pressure and condition
+- **Next 8 Hours** with temperature and rain probability
+- **7-Day Forecast**
+- **Hazard Breakdown**
+- **Farmer Actions** based on rainfall, wind and storms
+- Responsive dashboard built with Next.js and Tailwind CSS
+
+## Roadmap
+
+- Interactive Leaflet hazard map
+- AI WeatherGPT conversational assistant
+- Proactive severe-weather notifications
+- Flood, heat, lightning and visibility risk layers
+- Crop-specific recommendations
+- Tamil and other Indian regional languages
+- Voice assistant
+- Historical weather/risk analytics
+- PWA/mobile installation
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 with TypeScript
-- **UI Components**: shadcn/ui
-- **Styling**: Tailwind CSS
-- **Weather API**: OpenWeatherMap
-- **State Management**: React Context
-- **Icons**: Lucide React
+- **Frontend:** Next.js 14 + TypeScript
+- **Styling:** Tailwind CSS
+- **Icons:** Lucide React
+- **Weather & Geocoding:** Open-Meteo
+- **Runtime:** Node.js 18+
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-- OpenWeatherMap API key
-
-### Installation
-
 ```bash
-# Install dependencies
 npm install
-
-# Set up environment variables
-cp .env.example .env.local
-
-# Add your OpenWeatherMap API key to .env.local
-NEXT_PUBLIC_OPENWEATHER_API_KEY=your_api_key_here
-
-# Run development server
 npm run dev
 ```
 
-### Environment Variables
+Open `http://localhost:3000` in your browser.
 
-```
-NEXT_PUBLIC_OPENWEATHER_API_KEY=your_openweathermap_api_key
-```
+### Build for production
 
-## Project Structure
-
-```
-WeatherGPT/
-├── src/
-│   ├── app/              # Next.js app directory
-│   ├── components/       # React components
-│   ├── lib/             # Utility functions
-│   ├── types/           # TypeScript types
-│   └── hooks/           # Custom React hooks
-├── public/              # Static assets
-└── package.json
+```bash
+npm run build
+npm start
 ```
 
-## Features Overview
+## Architecture
 
-### Weather Safety Score Algorithm
+```text
+Browser
+  │
+  ├── Location search ──> Open-Meteo Geocoding API
+  │
+  ├── GPS coordinates ──> Open-Meteo Forecast API
+  │
+  └── Live weather ─────> Risk Engine ─────> Safety Score
+                                      └─────> Hazard explanations
+```
 
-The safety score (0-100) is calculated based on:
-- Temperature extremes
-- Precipitation intensity
-- Wind speed
-- Visibility
-- Severe weather alerts
-- Historical risk patterns
+## Safety score
 
-### Risk Categories
+The current prototype derives a transparent 0–100 score from live temperature, rain probability, wind, visibility and thunderstorm conditions. The score is intentionally explainable so users can see which factors are affecting the result.
 
-- **0-20**: Critical Risk - Take immediate shelter
-- **21-40**: High Risk - Avoid outdoor activities
-- **41-60**: Moderate Risk - Exercise caution
-- **61-80**: Low Risk - Normal activities
-- **81-100**: Safe - Ideal conditions
-
-## API Integration
-
-Uses OpenWeatherMap API for:
-- Current weather data
-- 12-hour forecast
-- Weather alerts
-- Historical data
-
-## Future Enhancements (Phase 2)
-
-- Interactive Leaflet hazard maps
-- WeatherGPT conversational assistant
-- Multi-location support
-- Historical risk analytics
-- Mobile app
+This score is an application-level indicator, not an official emergency warning. Official government alerts should remain the source of truth for emergency decisions.
 
 ## License
 
