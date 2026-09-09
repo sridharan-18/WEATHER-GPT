@@ -1,291 +1,35 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Cloud, Thermometer, Wind, Droplets, AlertTriangle, Shield, TrendingUp } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { AlertTriangle, Bot, Cloud, CloudRain, Droplets, Gauge, LocateFixed, MapPin, RefreshCw, Send, Shield, Sun, Thermometer, Wind } from "lucide-react"
 
-interface WeatherData {
-  temp: number
-  humidity: number
-  windSpeed: number
-  visibility: number
-  condition: string
-  safetyScore: number
-  riskLevel: string
-  hazards: string[]
-  forecast: Array<{
-    time: string
-    score: number
-    risk: string
-  }>
-}
+type Place = { name: string; latitude: number; longitude: number; country?: string }
+type Hour = { time: string; temp: number; rain: number; rainProb: number; wind: number; code: number }
+type Day = { date: string; min: number; max: number; rainProb: number; code: number }
+type Weather = { temp: number; feels: number; humidity: number; wind: number; gust: number; visibility: number; pressure: number; uv: number; code: number; hours: Hour[]; days: Day[] }
 
-export default function Home() {
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [location, setLocation] = useState("San Francisco, CA")
+const start: Place = { name: "Coimbatore", latitude: 11.0168, longitude: 76.9558, country: "India" }
+function text(code:number){ if(code===0)return "Clear sky"; if(code<=3)return "Cloudy"; if(code<=48)return "Fog"; if(code<=67||code<=82)return "Rain"; if(code>=95)return "Thunderstorm"; return "Weather" }
+function glyph(code:number){ return code>=95?<AlertTriangle className="h-7 w-7"/>:code>=51?<CloudRain className="h-7 w-7"/>:code<=1?<Sun className="h-7 w-7"/>:<Cloud className="h-7 w-7"/> }
+function risk(w:Weather){ let s=0; const why:string[]=[]; const actions:string[]=[]; const rp=Math.max(0,...w.hours.map(x=>x.rainProb)); const r=Math.max(0,...w.hours.map(x=>x.rain)); const wind=Math.max(w.wind,w.gust,...w.hours.map(x=>x.wind)); if(w.code>=95||w.hours.some(x=>x.code>=95)){s+=30;why.push("Thunderstorm risk");actions.push("Avoid exposed areas and monitor official alerts")} if(r>=10){s+=25;why.push("Heavy rain possible");actions.push("Avoid low-lying roads")}else if(r>=3||rp>=70){s+=12;why.push("Rain is likely");actions.push("Carry rain protection")} if(wind>=50){s+=25;why.push("Strong wind/gusts");actions.push("Secure loose outdoor objects")}else if(wind>=30){s+=12;why.push("Elevated wind");actions.push("Use caution outdoors")} if(w.temp>=40){s+=25;why.push("Extreme heat");actions.push("Avoid strenuous work and hydrate")}else if(w.temp>=35){s+=12;why.push("High temperature");actions.push("Plan outdoor work for cooler hours")} if(w.uv>=8){s+=10;why.push("Very high UV");actions.push("Use shade and sun protection")} if(!why.length)why.push("No major weather hazards detected"); if(!actions.length)actions.push("Normal outdoor activity is reasonable; continue monitoring"); return {score:Math.min(100,s),level:s>=70?"Severe":s>=50?"High":s>=30?"Moderate":"Low",why,actions} }
 
-  useEffect(() => {
-    // Simulate weather data (replace with actual API call)
-    const mockData: WeatherData = {
-      temp: 72,
-      humidity: 65,
-      windSpeed: 12,
-      visibility: 10,
-      condition: "Partly Cloudy",
-      safetyScore: 78,
-      riskLevel: "Low Risk",
-      hazards: ["Moderate UV Index", "Light Wind"],
-      forecast: [
-        { time: "Now", score: 78, risk: "Low" },
-        { time: "+2h", score: 75, risk: "Low" },
-        { time: "+4h", score: 70, risk: "Moderate" },
-        { time: "+6h", score: 65, risk: "Moderate" },
-        { time: "+8h", score: 60, risk: "Moderate" },
-        { time: "+10h", score: 55, risk: "High" },
-        { time: "+12h", score: 50, risk: "High" },
-      ]
-    }
-    
-    setTimeout(() => {
-      setWeatherData(mockData)
-      setLoading(false)
-    }, 1000)
-  }, [])
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-500"
-    if (score >= 60) return "text-yellow-500"
-    if (score >= 40) return "text-orange-500"
-    return "text-red-500"
-  }
-
-  const getRiskColor = (risk: string) => {
-    if (risk === "Low") return "bg-green-100 text-green-800"
-    if (risk === "Moderate") return "bg-yellow-100 text-yellow-800"
-    if (risk === "High") return "bg-orange-100 text-orange-800"
-    return "bg-red-100 text-red-800"
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <Cloud className="w-16 h-16 mx-auto mb-4 text-blue-500 animate-pulse" />
-          <p className="text-gray-600">Loading weather data...</p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
-            WeatherGPT
-          </h1>
-          <p className="text-gray-600 text-lg">Hyperlocal Weather Risk Intelligence</p>
-          <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-            <Cloud className="w-4 h-4" />
-            <span>{location}</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Weather Safety Score */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Shield className="w-6 h-6 text-blue-500" />
-                <h2 className="text-xl font-semibold text-gray-900">Weather Safety Score</h2>
-              </div>
-              
-              <div className="text-center py-8">
-                <div className={`text-7xl font-bold ${getScoreColor(weatherData!.safetyScore)}`}>
-                  {weatherData!.safetyScore}
-                </div>
-                <div className="text-2xl font-semibold text-gray-700 mt-2">
-                  {weatherData!.riskLevel}
-                </div>
-                <div className="text-sm text-gray-500 mt-1">out of 100</div>
-              </div>
-
-              <div className="mt-6">
-                <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full transition-all duration-500 ${
-                      weatherData!.safetyScore >= 80 ? 'bg-green-500' :
-                      weatherData!.safetyScore >= 60 ? 'bg-yellow-500' :
-                      weatherData!.safetyScore >= 40 ? 'bg-orange-500' : 'bg-red-500'
-                    }`}
-                    style={{ width: `${weatherData!.safetyScore}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Live Conditions */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-lg p-6 h-full">
-              <div className="flex items-center gap-2 mb-4">
-                <Cloud className="w-6 h-6 text-blue-500" />
-                <h2 className="text-xl font-semibold text-gray-900">Live Conditions</h2>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Thermometer className="w-5 h-5 text-red-500" />
-                    <span className="text-gray-700">Temperature</span>
-                  </div>
-                  <span className="font-semibold text-gray-900">{weatherData!.temp}°F</span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Droplets className="w-5 h-5 text-blue-500" />
-                    <span className="text-gray-700">Humidity</span>
-                  </div>
-                  <span className="font-semibold text-gray-900">{weatherData!.humidity}%</span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Wind className="w-5 h-5 text-gray-500" />
-                    <span className="text-gray-700">Wind Speed</span>
-                  </div>
-                  <span className="font-semibold text-gray-900">{weatherData!.windSpeed} mph</span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Cloud className="w-5 h-5 text-blue-500" />
-                    <span className="text-gray-700">Condition</span>
-                  </div>
-                  <span className="font-semibold text-gray-900">{weatherData!.condition}</span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <TrendingUp className="w-5 h-5 text-green-500" />
-                    <span className="text-gray-700">Visibility</span>
-                  </div>
-                  <span className="font-semibold text-gray-900">{weatherData!.visibility} mi</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 12-Hour Risk Forecast */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-lg p-6 h-full">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="w-6 h-6 text-blue-500" />
-                <h2 className="text-xl font-semibold text-gray-900">12-Hour Risk Forecast</h2>
-              </div>
-              
-              <div className="space-y-3">
-                {weatherData!.forecast.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-700 font-medium">{item.time}</span>
-                    <div className="flex items-center gap-3">
-                      <span className={`font-semibold ${getScoreColor(item.score)}`}>
-                        {item.score}
-                      </span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskColor(item.risk)}`}>
-                        {item.risk}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Hazard Breakdown */}
-        <div className="mt-6">
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="w-6 h-6 text-orange-500" />
-              <h2 className="text-xl font-semibold text-gray-900">Hazard Breakdown</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {weatherData!.hazards.map((hazard, index) => (
-                <div key={index} className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="w-5 h-5 text-orange-500" />
-                    <span className="font-semibold text-gray-900">Hazard {index + 1}</span>
-                  </div>
-                  <p className="text-gray-700">{hazard}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Actions for Farmer */}
-        <div className="mt-6">
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Shield className="w-6 h-6 text-green-500" />
-              <h2 className="text-xl font-semibold text-gray-900">Actions for Farmer</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-2">Irrigation</h3>
-                <p className="text-gray-700 text-sm">Optimal conditions for irrigation today. Moderate humidity levels support efficient water absorption.</p>
-              </div>
-              
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-2">Crop Protection</h3>
-                <p className="text-gray-700 text-sm">Light winds expected. No immediate threat to crops. Monitor for changes in +8 hours.</p>
-              </div>
-              
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-2">Field Work</h3>
-                <p className="text-gray-700 text-sm">Good conditions for field work in the next 6 hours. Plan activities accordingly.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Hazard Map Placeholder */}
-        <div className="mt-6">
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Cloud className="w-6 h-6 text-blue-500" />
-              <h2 className="text-xl font-semibold text-gray-900">Hazard Map</h2>
-            </div>
-            
-            <div className="bg-gray-100 rounded-lg p-12 text-center">
-              <Cloud className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-              <p className="text-gray-600 mb-2">Interactive Leaflet tiles arrive in Phase 2</p>
-              <p className="text-sm text-gray-500">Real-time hazard mapping coming soon</p>
-            </div>
-          </div>
-        </div>
-
-        {/* WeatherGPT Assistant Placeholder */}
-        <div className="mt-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Shield className="w-6 h-6 text-purple-500" />
-              <h2 className="text-xl font-semibold text-gray-900">WeatherGPT Assistant</h2>
-            </div>
-            
-            <div className="bg-gray-100 rounded-lg p-12 text-center">
-              <Shield className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-              <p className="text-gray-600 mb-2">Conversational intent parsing and explanations connect in Phase 2</p>
-              <p className="text-sm text-gray-500">AI-powered weather insights coming soon</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+export default function Home(){
+ const [place,setPlace]=useState(start); const [q,setQ]=useState(""); const [w,setW]=useState<Weather|null>(null); const [err,setErr]=useState(""); const [loading,setLoading]=useState(true); const [ask,setAsk]=useState(""); const [reply,setReply]=useState("Ask about rain, travel, farming, heat or today's weather."); const [crop,setCrop]=useState("Tomato")
+ const load=useCallback(async(p:Place)=>{setLoading(true);setErr("");try{const r=await fetch(`/api/weather?latitude=${p.latitude}&longitude=${p.longitude}`);if(!r.ok)throw Error("Weather service unavailable");const d=await r.json();const now=Date.now();const hours:Hour[]=d.hourly.time.map((t:string,i:number)=>({time:t,temp:d.hourly.temperature_2m[i],rain:d.hourly.precipitation[i]||0,rainProb:d.hourly.precipitation_probability[i]||0,wind:d.hourly.wind_speed_10m[i]||0,code:d.hourly.weather_code[i]})).filter((x:Hour)=>new Date(x.time).getTime()>=now).slice(0,12);setW({temp:d.current.temperature_2m,feels:d.current.apparent_temperature,humidity:d.current.relative_humidity_2m,wind:d.current.wind_speed_10m,gust:d.current.wind_gusts_10m,visibility:d.current.visibility,pressure:d.current.pressure_msl,uv:d.current.uv_index,code:d.current.weather_code,hours,days:d.daily.time.map((date:string,i:number)=>({date,min:d.daily.temperature_2m_min[i],max:d.daily.temperature_2m_max[i],rainProb:d.daily.precipitation_probability_max[i]||0,code:d.daily.weather_code[i]}))})}catch(e){setErr(e instanceof Error?e.message:"Unable to load weather")}finally{setLoading(false)}},[])
+ useEffect(()=>{load(place)},[place,load])
+ const rr=useMemo(()=>w?risk(w):null,[w])
+ async function search(){if(!q.trim())return;try{const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=en&format=json`);const d=await r.json();if(!d.results?.length)throw Error("Location not found");const x=d.results[0];setPlace({name:x.name,latitude:x.latitude,longitude:x.longitude,country:x.country});setQ("")}catch(e){setErr(e instanceof Error?e.message:"Search failed")}}
+ function locate(){navigator.geolocation?.getCurrentPosition(p=>setPlace({name:"My Location",latitude:p.coords.latitude,longitude:p.coords.longitude}),()=>setErr("Location permission was denied"))}
+ function assistant(){if(!w||!rr)return;const x=ask.toLowerCase();const rp=Math.max(0,...w.hours.map(h=>h.rainProb));if(x.includes("rain")||x.includes("umbrella"))setReply(rp>=60?`Rain is likely in the next 12 hours (${Math.round(rp)}% peak probability). Carry rain protection.`:"Rain risk is currently low over the next 12 hours.");else if(x.includes("travel")||x.includes("drive"))setReply(rr.score>=50?`Travel caution: ${rr.level} risk. ${rr.why[0]}.`:`Travel conditions look favorable. ${rr.actions[0]}.`);else if(x.includes("farm")||x.includes("crop")||x.includes("spray")||x.includes("irrigat"))setReply(`${crop}: ${rp>=50||w.wind>=20?"Consider delaying spraying because rain or wind may reduce effectiveness.":"Conditions are currently more suitable for field work."} Rain probability is ${Math.round(rp)}%.`);else if(x.includes("heat")||x.includes("temperature"))setReply(`It is ${Math.round(w.temp)}°C and feels like ${Math.round(w.feels)}°C. ${w.temp>=35?"Heat precautions are recommended.":"No extreme heat signal right now."}`);else setReply(`In ${place.name}, it is ${text(w.code).toLowerCase()} at ${Math.round(w.temp)}°C. Risk is ${rr.level.toLowerCase()} (${rr.score}/100).`)}
+ if(!w)return <main className="min-h-screen bg-slate-950 text-white grid place-items-center"><div className="text-center"><Cloud className="mx-auto h-16 w-16 animate-pulse"/><p className="mt-4">{loading?"Loading live weather…":"Weather unavailable"}</p></div></main>
+ return <main className="min-h-screen bg-slate-950 text-white"><div className="mx-auto max-w-7xl p-4 md:p-8"><header className="mb-6 flex flex-col gap-4 lg:flex-row lg:justify-between"><div><h1 className="flex items-center gap-3 text-3xl font-bold"><Cloud/>WeatherGPT</h1><p className="text-slate-400">Hyperlocal weather intelligence & action assistant</p></div><div className="flex flex-wrap gap-2"><div className="flex rounded-xl bg-slate-900 p-1"><input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&search()} placeholder="Search city…" className="w-44 bg-transparent px-3 py-2 outline-none"/><button onClick={search} className="rounded-lg bg-white px-4 font-semibold text-slate-950">Search</button></div><button onClick={locate} className="flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2"><LocateFixed className="h-4 w-4"/>My location</button></div></header>{err&&<div className="mb-5 rounded-xl border border-red-800 bg-red-950/40 p-4 text-red-200">{err}</div>}
+ <section className="grid gap-5 lg:grid-cols-3"><Box><div className="flex gap-2 text-slate-300"><MapPin className="h-5 w-5"/>{place.name}{place.country?`, ${place.country}`:""}</div><div className="mt-8 flex items-center justify-between"><div><div className="text-6xl font-bold">{Math.round(w.temp)}°</div><p>{text(w.code)}</p><p className="text-sm text-slate-500">Feels like {Math.round(w.feels)}°C</p></div>{glyph(w.code)}</div><div className="mt-6 grid grid-cols-2 gap-3"><M icon={<Droplets/>} n="Humidity" v={`${w.humidity}%`}/><M icon={<Wind/>} n="Wind" v={`${Math.round(w.wind)} km/h`}/><M icon={<Gauge/>} n="Pressure" v={`${Math.round(w.pressure)} hPa`}/><M icon={<Sun/>} n="UV" v={w.uv.toFixed(1)}/></div></Box>
+ <Box><div className="flex justify-between"><h2 className="flex items-center gap-2 text-xl font-semibold"><Shield/>Weather Risk</h2><button onClick={()=>load(place)}><RefreshCw className={loading?"animate-spin":""}/></button></div><div className="mt-6 flex items-end gap-3"><b className="text-6xl">{rr?.score}</b><span className="rounded-full bg-slate-800 px-3 py-1">{rr?.level} risk</span></div><div className="mt-5 h-3 rounded-full bg-slate-800"><div className="h-3 rounded-full bg-current" style={{width:`${rr?.score}%`}}/></div><h3 className="mt-6 font-semibold">Why?</h3><ul className="mt-2 space-y-2 text-sm text-slate-300">{rr?.why.map(x=><li key={x} className="flex gap-2"><AlertTriangle className="h-4 w-4 shrink-0"/>{x}</li>)}</ul></Box>
+ <Box><h2 className="text-xl font-semibold">Next 12 hours</h2><div className="mt-4 space-y-2">{w.hours.slice(0,6).map(h=><div key={h.time} className="flex items-center justify-between rounded-xl bg-slate-800 p-3 text-sm"><span>{new Date(h.time).toLocaleTimeString([], {hour:"numeric"})}</span><span className="flex items-center gap-2">{glyph(h.code)}{Math.round(h.temp)}°C</span><span className="text-cyan-300">{Math.round(h.rainProb)}% rain</span></div>)}</div></Box></section>
+ <Box><h2 className="text-xl font-semibold">7-Day Outlook</h2><div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">{w.days.map(d=><div key={d.date} className="rounded-xl bg-slate-800 p-3 text-center"><p className="text-xs text-slate-400">{new Date(d.date).toLocaleDateString([], {weekday:"short"})}</p><div className="my-3 flex justify-center">{glyph(d.code)}</div><p className="font-semibold">{Math.round(d.max)}° / {Math.round(d.min)}°</p><p className="text-xs text-cyan-300">{Math.round(d.rainProb)}% rain</p></div>)}</div></Box>
+ <section className="mt-5 grid gap-5 lg:grid-cols-2"><Box><h2 className="text-xl font-semibold">Action Plan</h2><div className="mt-4 space-y-3">{rr?.actions.map(a=><div key={a} className="flex gap-3 rounded-xl bg-slate-800 p-4"><Shield className="h-5 w-5 shrink-0"/>{a}</div>)}</div></Box><Box><h2 className="flex items-center gap-2 text-xl font-semibold"><Bot/>WeatherGPT Assistant</h2><div className="mt-4 min-h-24 rounded-xl bg-slate-800 p-4">{reply}</div><div className="mt-3 flex gap-2"><input value={ask} onChange={e=>setAsk(e.target.value)} onKeyDown={e=>e.key==="Enter"&&assistant()} placeholder="Can I travel today? Will it rain?" className="min-w-0 flex-1 rounded-xl bg-slate-800 px-4 py-3 outline-none"/><button onClick={assistant} className="rounded-xl bg-white px-4 text-slate-950"><Send/></button></div></Box></section>
+ <Box><div className="flex flex-col gap-3 sm:flex-row sm:justify-between"><div><h2 className="text-xl font-semibold">Farmer Decision Support</h2><p className="text-sm text-slate-400">Weather-aware field recommendations</p></div><select value={crop} onChange={e=>setCrop(e.target.value)} className="rounded-xl bg-slate-800 px-4 py-2"><option>Tomato</option><option>Rice</option><option>Wheat</option><option>Cotton</option><option>Banana</option><option>Groundnut</option></select></div><div className="mt-5 grid gap-3 md:grid-cols-3"><Advice title="Irrigation" icon={<Droplets/>} text={Math.max(...w.hours.map(x=>x.rainProb))>=60?"Rain is likely. Consider delaying irrigation.":"Check soil moisture before irrigating."}/><Advice title="Spraying" icon={<Wind/>} text={w.wind>=20?"Avoid spraying during elevated winds.":"Wind is currently more suitable; follow product guidance."}/><Advice title="Field work" icon={<Thermometer/>} text={w.temp>=35?"Schedule strenuous work during cooler hours.":"Temperature is currently suitable for normal field work."}/></div></Box>
+ </div></main>}
+function Box({children}:{children:React.ReactNode}){return <div className="rounded-2xl bg-slate-900 p-6 ring-1 ring-slate-800">{children}</div>}
+function M({icon,n,v}:{icon:React.ReactNode;n:string;v:string}){return <div className="flex items-center gap-2 rounded-xl bg-slate-800 p-3"><span className="text-slate-400">{icon}</span><div><p className="text-xs text-slate-500">{n}</p><p className="font-semibold">{v}</p></div></div>}
+function Advice({icon,title,text}:{icon:React.ReactNode;title:string;text:string}){return <div className="rounded-xl bg-slate-800 p-4"><div className="flex items-center gap-2 font-semibold">{icon}{title}</div><p className="mt-2 text-sm text-slate-300">{text}</p></div>}
