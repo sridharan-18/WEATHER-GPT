@@ -38,6 +38,7 @@ import {
   type WeatherResponse,
 } from "@/lib/weather"
 import { calculateHourlyRisk, calculateWeatherRisks } from "@/lib/risk"
+import WeatherControls from "@/components/WeatherControls"
 
 function formatHour(value: string) {
   return new Date(value).toLocaleTimeString([], { hour: "numeric" })
@@ -150,7 +151,7 @@ export default function Home() {
         <header className="mb-8">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900">WeatherGPT</h1>
+              <div className="flex items-center gap-3"><h1 className="text-4xl md:text-5xl font-bold text-gray-900">WeatherGPT</h1><WeatherControls hazards={risk?.hazards} location={location.name} /></div>
               <p className="text-gray-600 text-lg mt-2">Hyperlocal Weather Risk Intelligence</p>
             </div>
 

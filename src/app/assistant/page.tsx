@@ -5,6 +5,7 @@ import Link from "next/link"
 import { ArrowLeft, Bot, Loader2, MapPin, Send, ShieldAlert } from "lucide-react"
 import { getWeather, weatherCodeToText, type WeatherResponse } from "@/lib/weather"
 import { calculateHazardProbabilities, calculateWeatherRisks, type HazardProbability } from "@/lib/risk"
+import WeatherControls from "@/components/WeatherControls"
 
 const MODES = [
   { key: "citizen", label: "Citizen", prompt: "Is it safe to go out?" },
@@ -81,7 +82,7 @@ export default function AssistantPage() {
       <div className="max-w-3xl mx-auto">
         <Link href="/" className="inline-flex items-center gap-2 text-sky-700 hover:text-sky-900 mb-6"><ArrowLeft className="w-4 h-4" /> Back to WeatherGPT</Link>
         <section className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-indigo-600 to-sky-600 p-6 text-white flex items-center gap-3"><Bot className="w-8 h-8" /><div><h1 className="text-2xl font-bold">WeatherGPT Assistant</h1><p className="text-white/85">Ask questions using live weather context.</p></div></div>
+          <div className="bg-gradient-to-r from-indigo-600 to-sky-600 p-6 text-white flex items-center gap-3"><Bot className="w-8 h-8" /><div className="flex-1"><h1 className="text-2xl font-bold">WeatherGPT Assistant</h1><p className="text-white/85">Ask questions using live weather context.</p></div><WeatherControls /></div>
           <div className="p-6">
             {weatherLoading ? <div className="rounded-xl bg-sky-50 p-4 mb-6 flex gap-3"><Loader2 className="w-5 h-5 animate-spin" /> Loading live weather...</div> : weatherContext && <div className="rounded-xl bg-sky-50 p-4 mb-6"><p className="font-semibold flex items-center gap-2"><MapPin className="w-4 h-4" />{weatherContext.location}</p><p className="text-sm text-gray-600 mt-1">{weatherContext.temperature.toFixed(1)}°C · {weatherContext.condition} · Rain {weatherContext.rainProbability}% · Wind {weatherContext.windSpeed.toFixed(0)} km/h · Risk {weatherContext.riskScore}/100 ({weatherContext.riskLevel})</p></div>}
             <div className="mb-6">
