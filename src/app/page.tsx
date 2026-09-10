@@ -1,8 +1,11 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
+import Link from "next/link"
 import {
+  ArrowUpRight,
   AlertTriangle,
+  CheckCircle2,
   Cloud,
   CloudLightning,
   CloudRain,
@@ -11,10 +14,16 @@ import {
   Flame,
   Gauge,
   LocateFixed,
+  Map,
   MapPin,
+  MessageCircle,
+  Navigation,
+  PhoneCall,
   RefreshCw,
   Search,
   Shield,
+  ShieldAlert,
+  Siren,
   Sun,
   Thermometer,
   TrendingUp,
@@ -28,7 +37,7 @@ import {
   type LocationResult,
   type WeatherResponse,
 } from "@/lib/weather"
-import { calculateWeatherRisks } from "@/lib/risk"
+import { calculateHourlyRisk, calculateWeatherRisks } from "@/lib/risk"
 
 function formatHour(value: string) {
   return new Date(value).toLocaleTimeString([], { hour: "numeric" })
@@ -73,6 +82,7 @@ export default function Home() {
   }, [loadWeather, location.latitude, location.longitude])
 
   const risk = useMemo(() => (weather ? calculateWeatherRisks(weather) : null), [weather])
+  const hourlyRisk = useMemo(() => (weather ? calculateHourlyRisk(weather) : []), [weather])
 
   async function handleSearch() {
     if (!query.trim()) return
@@ -131,6 +141,8 @@ export default function Home() {
   const hourlyStart = weather.hourly.time.findIndex((time) => time >= weather.current.time)
   const start = hourlyStart >= 0 ? hourlyStart : 0
   const hourly = weather.hourly.time.slice(start, start + 8)
+  const safestPoint = hourlyRisk.length ? hourlyRisk.reduce((best, point) => point.score < best.score ? point : best, hourlyRisk[0]) : null
+  const activeHazards = risk.hazards.filter((hazard) => hazard.score >= 50)
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-indigo-100 p-4 md:p-8">
@@ -265,6 +277,86 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-600">Decision window</p>
+                <h2 className="text-xl font-semibold mt-1">12-hour risk outlook</h2>
+              </div>
+              <TrendingUp className="w-5 h-5 text-sky-500" />
+            </div>
+            <div className="flex items-end gap-2 h-40 border-b border-gray-100 pb-2">
+              {hourlyRisk.map((point, index) => (
+                <div key={point.time} className="flex-1 h-full flex flex-col items-center justify-end gap-2 min-w-0">
+                  <span className="text-xs font-semibold text-gray-700">{point.score}</span>
+                  <div className={`w-full max-w-10 rounded-t-lg transition-all ${point.score >= 60 ? "bg-red-400" : point.score >= 35 ? "bg-amber-400" : "bg-emerald-400"}`} style={{ height: `${Math.max(8, point.score)}%` }} title={`${point.score}% risk`} />
+                  <span className="text-[11px] text-gray-500 truncate w-full text-center">{index === 0 ? "Now" : formatHour(point.time)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-gray-500">
+              <span><i className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1" />Safe</span>
+              <span><i className="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1" />Moderate</span>
+              <span><i className="inline-block w-2 h-2 rounded-full bg-red-400 mr-1" />High</span>
+              <span className="ml-auto">Risk is recalculated from live forecast signals</span>
+            </div>
+          </div>
+
+          <div className="bg-cyan-950 text-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center gap-2 text-cyan-200">
+              <Navigation className="w-5 h-5" />
+              <p className="text-xs font-semibold uppercase tracking-[0.18em]">Safe travel window</p>
+            </div>
+            <h2 className="text-3xl font-semibold mt-5">{safestPoint ? formatHour(safestPoint.time) : "--"}</h2>
+            <p className="text-cyan-100 mt-1">Lowest projected risk in the next 12 hours</p>
+            <div className="mt-6 rounded-xl bg-white/10 p-4">
+              <div className="flex items-center justify-between text-sm"><span>Average risk</span><strong>{safestPoint?.score ?? 0}/100</strong></div>
+              <div className="h-2 rounded-full bg-white/10 mt-3"><div className="h-full rounded-full bg-emerald-300" style={{ width: `${Math.max(5, 100 - (safestPoint?.score ?? 0))}%` }} /></div>
+              <p className="text-xs text-cyan-100 mt-3">Travel with normal caution and check the map before departure.</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="bg-white rounded-2xl shadow-lg p-6 lg:col-span-2">
+            <div className="flex items-center justify-between gap-4 mb-5">
+              <div className="flex items-center gap-2"><ShieldAlert className="w-6 h-6 text-orange-500" /><h2 className="text-xl font-semibold">Impact-based alerts</h2></div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Live signals</span>
+            </div>
+            {activeHazards.length ? (
+              <div className="space-y-3">
+                {activeHazards.slice(0, 3).map((hazard) => (
+                  <div key={hazard.key} className="flex items-start gap-3 rounded-xl border border-orange-100 bg-orange-50 p-4">
+                    <AlertTriangle className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                    <div><p className="font-semibold text-gray-900">{hazard.label} risk is {hazard.level.toLowerCase()}</p><p className="text-sm text-gray-600 mt-1">{hazard.detail}. {hazard.action}</p></div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 rounded-xl bg-emerald-50 border border-emerald-100 p-4 text-emerald-800"><CheckCircle2 className="w-5 h-5" /><span>No active high-risk signals detected for this location.</span></div>
+            )}
+          </div>
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center gap-2 mb-4"><Map className="w-6 h-6 text-sky-600" /><h2 className="text-xl font-semibold">Live risk map</h2></div>
+            <p className="text-sm text-gray-600">See your location, risk halo, and hazard context on the interactive map.</p>
+            <Link href="/map" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-sky-600 text-white px-4 py-3 font-medium hover:bg-sky-700">Open map <ArrowUpRight className="w-4 h-4" /></Link>
+          </div>
+        </section>
+
+        <section className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <DecisionCard icon={<Siren className="w-5 h-5" />} title="Farmer mode" text="Time irrigation and crop protection around the next rain window." />
+          <DecisionCard icon={<Navigation className="w-5 h-5" />} title="Travel mode" text="Use the safest window and visibility signal before leaving." />
+          <DecisionCard icon={<MessageCircle className="w-5 h-5" />} title="Ask WeatherGPT" text="Get a grounded answer using this location's live risk signals." href="/assistant" />
+        </section>
+
+        <section className="mt-6 mb-8 rounded-2xl bg-red-950 text-white p-6 md:p-7">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+            <div><div className="flex items-center gap-2 text-red-200"><PhoneCall className="w-5 h-5" /><p className="text-xs font-semibold uppercase tracking-[0.18em]">Emergency action centre</p></div><h2 className="text-xl font-semibold mt-2">Need immediate help?</h2><p className="text-sm text-red-100 mt-1">Use local emergency services for life-threatening situations.</p></div>
+            <div className="flex flex-wrap gap-2"><a href="tel:112" className="rounded-xl bg-white text-red-950 px-4 py-3 font-semibold hover:bg-red-50">112 Emergency</a><a href="tel:108" className="rounded-xl bg-red-800 px-4 py-3 font-semibold hover:bg-red-700">108 Ambulance</a><a href="tel:101" className="rounded-xl bg-red-800 px-4 py-3 font-semibold hover:bg-red-700">101 Fire</a></div>
+          </div>
+        </section>
+
         <section className="mt-6 bg-white rounded-2xl shadow-lg p-6">
           <div className="flex items-center gap-2 mb-5">
             <TrendingUp className="w-6 h-6 text-sky-500" />
@@ -362,4 +454,16 @@ function HazardIcon({ name }: { name: string }) {
   if (name === "heat") return <Flame className="w-4 h-4 text-orange-300" />
   if (name === "wind") return <Wind className="w-4 h-4 text-sky-300" />
   return <Eye className="w-4 h-4 text-violet-300" />
+}
+
+function DecisionCard({ icon, title, text, href }: { icon: ReactNode; title: string; text: string; href?: string }) {
+  const content = (
+    <div className="h-full rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:border-sky-300 hover:shadow-md transition">
+      <div className="flex items-center gap-2 text-sky-600">{icon}<h3 className="font-semibold text-gray-900">{title}</h3></div>
+      <p className="text-sm text-gray-600 mt-3">{text}</p>
+      {href && <span className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700 mt-4">Open assistant <ArrowUpRight className="w-4 h-4" /></span>}
+    </div>
+  )
+
+  return href ? <Link href={href} className="block">{content}</Link> : content
 }

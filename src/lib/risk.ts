@@ -18,6 +18,12 @@ export interface WeatherRiskSummary {
   reasons: string[]
 }
 
+export interface HourlyRiskPoint {
+  time: string
+  score: number
+  rain: number
+}
+
 function clamp(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)))
 }
@@ -116,4 +122,23 @@ export function calculateWeatherRisks(weather: WeatherResponse): WeatherRiskSumm
     hazards,
     reasons: reasons.length ? reasons : ["No significant weather hazards detected"],
   }
+}
+
+export function calculateHourlyRisk(weather: WeatherResponse, hours = 12): HourlyRiskPoint[] {
+  const start = Math.max(0, weather.hourly.time.findIndex((time) => time >= weather.current.time))
+
+  return weather.hourly.time.slice(start, start + hours).map((time, offset) => {
+    const index = start + offset
+    const rain = weather.hourly.precipitation_probability[index] ?? 0
+    const temperature = weather.hourly.temperature_2m[index] ?? weather.current.temperature_2m
+    const wind = weather.hourly.wind_speed_10m[index] ?? weather.current.wind_speed_10m
+    const visibility = weather.hourly.visibility[index] ?? weather.current.visibility
+    const storm = [95, 96, 99].includes(weather.hourly.weather_code[index] ?? 0) ? 85 : 0
+    const heat = clamp((temperature - 24) * 6.25)
+    const windRisk = clamp((wind - 15) * 2.4)
+    const visibilityRisk = clamp((10000 - visibility) / 80)
+    const score = clamp(rain * 0.3 + storm * 0.25 + heat * 0.2 + windRisk * 0.15 + visibilityRisk * 0.1)
+
+    return { time, score, rain }
+  })
 }
