@@ -24,6 +24,14 @@ export interface HourlyRiskPoint {
   rain: number
 }
 
+export interface HazardProbability {
+  key: string
+  label: string
+  probability: number | null
+  detail: string
+  source: "forecast" | "derived" | "unavailable"
+}
+
 function clamp(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)))
 }
@@ -141,4 +149,25 @@ export function calculateHourlyRisk(weather: WeatherResponse, hours = 12): Hourl
 
     return { time, score, rain }
   })
+}
+
+export function calculateHazardProbabilities(weather: WeatherResponse): HazardProbability[] {
+  const rain = Math.max(...weather.hourly.precipitation_probability.slice(0, 12), weather.hourly.precipitation_probability[0] ?? 0)
+  const storm = weather.hourly.weather_code.slice(0, 12).some((code) => [95, 96, 99].includes(code)) ? 85 : 0
+  const heat = clamp((Math.max(weather.current.temperature_2m, weather.current.apparent_temperature) - 27) * 7)
+  const wind = clamp((Math.max(weather.current.wind_speed_10m, ...weather.hourly.wind_speed_10m.slice(0, 12)) - 20) * 2.5)
+  const visibility = clamp((8000 - Math.min(weather.current.visibility, ...weather.hourly.visibility.slice(0, 12))) / 60)
+  const flood = clamp(rain * 0.65 + Math.max(...weather.hourly.precipitation.slice(0, 12), 0) * 7)
+
+  return [
+    { key: "rain", label: "Heavy rain", probability: rain, detail: "Maximum precipitation probability in the next 12 hours", source: "forecast" },
+    { key: "flood", label: "Flash-flood conditions", probability: flood, detail: "Derived from rain probability and forecast precipitation; not an official warning", source: "derived" },
+    { key: "storm", label: "Thunderstorm", probability: storm, detail: storm ? "Thunderstorm code appears in the near-term forecast" : "No thunderstorm code in the near-term forecast", source: "forecast" },
+    { key: "heat", label: "Heat stress", probability: heat, detail: `Based on a feels-like temperature of ${Math.round(weather.current.apparent_temperature)}°C`, source: "derived" },
+    { key: "wind", label: "High wind", probability: wind, detail: "Derived from sustained wind forecast", source: "derived" },
+    { key: "visibility", label: "Low visibility", probability: visibility, detail: "Derived from visibility forecast", source: "derived" },
+    { key: "tsunami", label: "Tsunami", probability: null, detail: "No seismic or ocean-warning feed is connected", source: "unavailable" },
+    { key: "earthquake", label: "Earthquake", probability: null, detail: "No seismic warning feed is connected", source: "unavailable" },
+    { key: "volcano", label: "Volcanic activity", probability: null, detail: "No volcanic monitoring feed is connected", source: "unavailable" },
+  ]
 }
