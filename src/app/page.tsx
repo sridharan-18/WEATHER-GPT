@@ -4,7 +4,11 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import {
   AlertTriangle,
   Cloud,
+  CloudLightning,
+  CloudRain,
   Droplets,
+  Eye,
+  Flame,
   Gauge,
   LocateFixed,
   MapPin,
@@ -24,68 +28,7 @@ import {
   type LocationResult,
   type WeatherResponse,
 } from "@/lib/weather"
-
-interface RiskResult {
-  score: number
-  level: string
-  reasons: string[]
-}
-
-function calculateRisk(weather: WeatherResponse): RiskResult {
-  const current = weather.current
-  let risk = 0
-  const reasons: string[] = []
-
-  if (current.temperature_2m >= 38) {
-    risk += 25
-    reasons.push("Extreme heat")
-  } else if (current.temperature_2m >= 34) {
-    risk += 12
-    reasons.push("High temperature")
-  } else if (current.temperature_2m <= 8) {
-    risk += 15
-    reasons.push("Low temperature")
-  }
-
-  const rainProbability = weather.hourly.precipitation_probability[0] ?? 0
-  if (rainProbability >= 80) {
-    risk += 25
-    reasons.push("High rain probability")
-  } else if (rainProbability >= 50) {
-    risk += 12
-    reasons.push("Moderate rain probability")
-  }
-
-  if (current.wind_speed_10m >= 50) {
-    risk += 25
-    reasons.push("Very strong winds")
-  } else if (current.wind_speed_10m >= 30) {
-    risk += 12
-    reasons.push("Strong winds")
-  }
-
-  if (current.visibility < 2000) {
-    risk += 20
-    reasons.push("Poor visibility")
-  } else if (current.visibility < 5000) {
-    risk += 8
-    reasons.push("Reduced visibility")
-  }
-
-  if ([95, 96, 99].includes(current.weather_code)) {
-    risk += 30
-    reasons.push("Thunderstorm conditions")
-  }
-
-  const score = Math.max(0, Math.min(100, 100 - risk))
-  const level = score >= 80 ? "Safe" : score >= 60 ? "Low Risk" : score >= 40 ? "Moderate Risk" : score >= 20 ? "High Risk" : "Critical Risk"
-
-  return {
-    score,
-    level,
-    reasons: reasons.length ? reasons : ["No significant weather hazards detected"],
-  }
-}
+import { calculateWeatherRisks } from "@/lib/risk"
 
 function formatHour(value: string) {
   return new Date(value).toLocaleTimeString([], { hour: "numeric" })
@@ -129,7 +72,7 @@ export default function Home() {
     void loadWeather(location)
   }, [loadWeather, location.latitude, location.longitude])
 
-  const risk = useMemo(() => (weather ? calculateRisk(weather) : null), [weather])
+  const risk = useMemo(() => (weather ? calculateWeatherRisks(weather) : null), [weather])
 
   async function handleSearch() {
     if (!query.trim()) return
@@ -258,12 +201,12 @@ export default function Home() {
               <h2 className="text-xl font-semibold">Weather Safety Score</h2>
             </div>
             <div className="text-center py-6">
-              <div className="text-7xl font-bold text-sky-600">{risk.score}</div>
+              <div className="text-7xl font-bold text-sky-600">{risk.safetyScore}</div>
               <div className="text-2xl font-semibold text-gray-700 mt-2">{risk.level}</div>
               <div className="text-sm text-gray-500 mt-1">out of 100</div>
             </div>
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-sky-500 transition-all duration-500" style={{ width: `${risk.score}%` }} />
+              <div className="h-full bg-sky-500 transition-all duration-500" style={{ width: `${risk.safetyScore}%` }} />
             </div>
             <div className="mt-5 space-y-2">
               {risk.reasons.slice(0, 3).map((reason) => (
@@ -291,6 +234,34 @@ export default function Home() {
               <Metric icon={<Gauge className="w-5 h-5" />} label="Pressure" value={`${weather.current.pressure_msl.toFixed(0)} hPa`} />
               <Metric icon={<Cloud className="w-5 h-5" />} label="Condition" value={weatherCodeToText(weather.current.weather_code)} />
             </div>
+          </div>
+        </section>
+
+        <section className="mt-6 bg-slate-950 text-white rounded-2xl shadow-lg p-6 md:p-7">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">Risk intelligence</p>
+              <h2 className="text-2xl font-semibold mt-2">Today&apos;s hazard profile</h2>
+            </div>
+            <p className="text-sm text-slate-400 max-w-md">Each signal is calculated from current conditions and the next six hours of live forecast data.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {risk.hazards.map((hazard) => (
+              <div key={hazard.key} className="rounded-xl bg-white/10 border border-white/10 p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-slate-200">
+                    <HazardIcon name={hazard.key} />
+                    <span className="font-medium">{hazard.label}</span>
+                  </div>
+                  <span className="text-sm font-semibold text-cyan-200">{hazard.score}%</span>
+                </div>
+                <div className="mt-4 h-2 rounded-full bg-white/10 overflow-hidden">
+                  <div className={`h-full rounded-full ${hazard.score >= 75 ? "bg-red-400" : hazard.score >= 50 ? "bg-orange-400" : hazard.score >= 25 ? "bg-amber-300" : "bg-emerald-400"}`} style={{ width: `${Math.max(hazard.score, 4)}%` }} />
+                </div>
+                <p className="text-xs text-slate-300 mt-3 min-h-8">{hazard.detail}</p>
+                <p className="text-xs text-slate-400 mt-2">{hazard.action}</p>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -383,4 +354,12 @@ function Metric({ icon, label, value }: { icon: ReactNode; label: string; value:
       <p className="font-semibold text-gray-900">{value}</p>
     </div>
   )
+}
+
+function HazardIcon({ name }: { name: string }) {
+  if (name === "rain") return <CloudRain className="w-4 h-4 text-cyan-300" />
+  if (name === "storm") return <CloudLightning className="w-4 h-4 text-yellow-300" />
+  if (name === "heat") return <Flame className="w-4 h-4 text-orange-300" />
+  if (name === "wind") return <Wind className="w-4 h-4 text-sky-300" />
+  return <Eye className="w-4 h-4 text-violet-300" />
 }
