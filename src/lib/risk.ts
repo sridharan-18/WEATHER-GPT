@@ -1,6 +1,6 @@
 import type { WeatherResponse } from "@/lib/weather"
 
-export type HazardKey = "rain" | "storm" | "heat" | "wind" | "visibility"
+export type HazardKey = "rain" | "flood" | "storm" | "heat" | "wind" | "visibility"
 
 export interface HazardScore {
   key: HazardKey
@@ -65,6 +65,7 @@ export function calculateWeatherRisks(weather: WeatherResponse): WeatherRiskSumm
   const stormCodes = [95, 96, 99]
   const stormAhead = hourly.weather_code.some((code, index) => index < 8 && stormCodes.includes(code))
   const rain = clamp(Math.max(nextRain, current.precipitation > 0 ? 45 : 0))
+  const flood = clamp(rain * 0.65 + Math.max(...hourly.precipitation.slice(0, 6), current.precipitation) * 7)
   const storm = stormAhead || stormCodes.includes(current.weather_code) ? 85 : 0
   const heat = clamp((Math.max(current.temperature_2m, current.apparent_temperature) - 24) * 6.25)
   const wind = clamp((Math.max(current.wind_speed_10m, nextWind) - 15) * 2.4)
@@ -78,6 +79,14 @@ export function calculateWeatherRisks(weather: WeatherResponse): WeatherRiskSumm
       level: levelFor(rain),
       detail: `${nextRain}% chance in the next 6 hours`,
       action: rain >= 50 ? "Carry rain protection and plan covered travel." : "Outdoor plans are broadly favorable.",
+    },
+    {
+      key: "flood",
+      label: "Flood",
+      score: flood,
+      level: levelFor(flood),
+      detail: `${Math.round(flood)}% derived flood-condition signal`,
+      action: flood >= 50 ? "Avoid low-lying roads and never cross flowing water." : "No strong flood signal in the current forecast.",
     },
     {
       key: "storm",
@@ -114,7 +123,7 @@ export function calculateWeatherRisks(weather: WeatherResponse): WeatherRiskSumm
   ]
 
   const weightedRisk = hazards.reduce((total, hazard) => {
-    const weight = hazard.key === "rain" ? 0.3 : hazard.key === "storm" ? 0.25 : hazard.key === "heat" ? 0.2 : hazard.key === "wind" ? 0.15 : 0.1
+    const weight = hazard.key === "rain" ? 0.25 : hazard.key === "flood" ? 0.15 : hazard.key === "storm" ? 0.2 : hazard.key === "heat" ? 0.2 : hazard.key === "wind" ? 0.1 : 0.1
     return total + hazard.score * weight
   }, 0)
   const riskScore = clamp(weightedRisk)
