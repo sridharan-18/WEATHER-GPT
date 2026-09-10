@@ -7,6 +7,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "WeatherGPT — Hyperlocal Weather Risk Intelligence",
   description: "Turn raw meteorological data into a 0-100 safety score, explainable alerts and actionable advice.",
+  manifest: "/manifest.webmanifest",
 }
 
 export default function RootLayout({
