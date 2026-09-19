@@ -1,76 +1,153 @@
-# WeatherGPT — Hyperlocal Weather Risk Intelligence
+# 🌤️ Weather GPT - Interactive Hazard Map
 
-WeatherGPT turns live meteorological data into a 0–100 safety score, explainable hazards and actionable weather advice.
+An interactive weather application with hazard mapping and AI-powered conversational assistance.
 
-## Current features
+## Features
 
-- **Live weather data** using Open-Meteo
-- **Location search** for cities and towns
-- **Use My Location** with browser geolocation
-- **Weather Safety Score** calculated from live conditions
-- **Explainable risk factors** showing why risk changes
-- **Live Conditions** for temperature, feels-like temperature, humidity, wind, pressure and condition
-- **Next 8 Hours** with temperature and rain probability
-- **7-Day Forecast**
-- **Hazard Breakdown**
-- **Farmer Actions** based on rainfall, wind and storms
-- Responsive dashboard built with Next.js and Tailwind CSS
+### 🗺️ Interactive Hazard Map
+- **Leaflet-based map** with hyperlocal zoom capabilities
+- **Multiple hazard risk layers:**
+  - 🌊 Flood Risk
+  - 🔥 Heat Risk  
+  - ⚡ Lightning Risk
+  - 👁️ Visibility Risk
+- Color-coded risk indicators (High/Medium/Low)
+- Click-to-explore location details
 
-## Roadmap
-
-- Interactive Leaflet hazard map
-- AI WeatherGPT conversational assistant
-- Proactive severe-weather notifications
-- Flood, heat, lightning and visibility risk layers
-- Crop-specific recommendations
-- Tamil and other Indian regional languages
-- Voice assistant
-- Historical weather/risk analytics
-- PWA/mobile installation
+### 🤖 AI Conversational Assistant
+- **GPT-powered weather Q&A** for natural language queries
+- **Actionable weather advice** tailored to current conditions
+- **Location-specific insights** with personalized recommendations
+- Examples:
+  - "What's the weather like in Sulur today?"
+  - "Should I carry an umbrella?"
+  - "Is it safe to travel tomorrow?"
 
 ## Tech Stack
 
-- **Frontend:** Next.js 14 + TypeScript
-- **Styling:** Tailwind CSS
-- **Icons:** Lucide React
-- **Weather & Geocoding:** Open-Meteo
-- **Runtime:** Node.js 18+
+- **Frontend:** HTML, CSS, JavaScript, Leaflet.js
+- **Backend:** Flask (Python)
+- **AI Integration:** OpenAI GPT API
+- **Weather Data:** OpenWeatherMap API
+- **Mapping:** OpenStreetMap via Leaflet
 
-## Getting Started
+## Installation
 
+1. **Clone the repository**
 ```bash
-npm install
-npm run dev
+git clone https://github.com/sridharan-18/WEATHER-GPT.git
+cd WEATHER-GPT
 ```
 
-Open `http://localhost:3000` in your browser.
-
-### Build for production
-
+2. **Create virtual environment**
 ```bash
-npm run build
-npm start
+python -m venv venv
+venv\Scripts\activate  # On Windows
+source venv/bin/activate  # On Mac/Linux
 ```
 
-## Architecture
-
-```text
-Browser
-  │
-  ├── Location search ──> Open-Meteo Geocoding API
-  │
-  ├── GPS coordinates ──> Open-Meteo Forecast API
-  │
-  └── Live weather ─────> Risk Engine ─────> Safety Score
-                                      └─────> Hazard explanations
+3. **Install dependencies**
+```bash
+pip install -r requirements.txt
 ```
 
-## Safety score
+4. **Set up environment variables**
+```bash
+cp .env.example .env
+```
 
-The current prototype derives a transparent 0–100 score from live temperature, rain probability, wind, visibility and thunderstorm conditions. The score is intentionally explainable so users can see which factors are affecting the result.
+Edit `.env` and add your API keys:
+```
+WEATHER_API_KEY=your_openweathermap_api_key
+OPENAI_API_KEY=your_openai_api_key
+```
 
-This score is an application-level indicator, not an official emergency warning. Official government alerts should remain the source of truth for emergency decisions.
+### Getting API Keys
+
+- **OpenWeatherMap:** Sign up at [openweathermap.org](https://openweathermap.org/api)
+- **OpenAI:** Get API key at [platform.openai.com](https://platform.openai.com/api-keys)
+
+## Usage
+
+1. **Run the application**
+```bash
+python app.py
+```
+
+2. **Open browser**
+Navigate to `http://localhost:5000`
+
+3. **Use the map:**
+   - Toggle hazard layers using checkboxes
+   - Click on map to see location details
+   - Zoom into hyperlocal regions
+
+4. **Chat with AI assistant:**
+   - Ask weather questions in natural language
+   - Get personalized advice for any location
+   - Receive actionable recommendations
+
+## Project Structure
+
+```
+WEATHER-GPT/
+├── app.py                 # Flask backend with AI integration
+├── requirements.txt       # Python dependencies
+├── .env.example          # Environment variables template
+├── .gitignore            # Git ignore rules
+├── static/
+│   ├── css/
+│   │   └── style.css     # Application styling
+│   └── js/
+│       ├── map.js        # Leaflet map functionality
+│       └── chat.js       # Chat interface logic
+└── templates/
+    └── index.html        # Main HTML template
+```
+
+## Features in Detail
+
+### Hazard Risk Layers
+The map displays four types of environmental hazards:
+- **Flood Risk:** Water accumulation and flooding potential
+- **Heat Risk:** Temperature extremes and heat waves
+- **Lightning Risk:** Electrical storm activity
+- **Visibility Risk:** Fog, haze, and visibility impairment
+
+Each risk level is color-coded:
+- 🔴 Red: High risk
+- 🟡 Yellow: Medium risk  
+- 🟢 Green: Low risk
+
+### AI Assistant Capabilities
+- Natural language understanding for weather queries
+- Context-aware responses based on current conditions
+- Personalized recommendations (clothing, travel, activities)
+- Safety advisories for extreme weather events
+
+## Deployment
+
+The application can be deployed to various platforms:
+- **Heroku:** Use the Procfile and deploy via Git
+- **Render:** Connect GitHub repository for automatic deployment
+- **Railway:** Simple deployment with environment variables
+- **Vercel:** Serverless deployment option
 
 ## License
 
-MIT
+This project is open source and available under the MIT License.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Author
+
+Created by sridharan-18
+
+## Acknowledgments
+
+- Leaflet.js for the mapping library
+- OpenWeatherMap for weather data
+- OpenAI for GPT integration
+- OpenStreetMap for map tiles

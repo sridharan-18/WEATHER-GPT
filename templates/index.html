@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather GPT - Interactive Hazard Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌤️ Weather GPT</h1>
+            <p>Interactive Hazard Map & AI Weather Assistant</p>
+        </header>
+
+        <div class="main-content">
+            <div class="map-section">
+                <div class="layer-controls">
+                    <h3>Hazard Layers</h3>
+                    <div class="layer-toggle">
+                        <label>
+                            <input type="checkbox" id="flood-layer" onchange="toggleLayer('flood')">
+                            <span>Flood Risk</span>
+                        </label>
+                    </div>
+                    <div class="layer-toggle">
+                        <label>
+                            <input type="checkbox" id="heat-layer" onchange="toggleLayer('heat')">
+                            <span>Heat Risk</span>
+                        </label>
+                    </div>
+                    <div class="layer-toggle">
+                        <label>
+                            <input type="checkbox" id="lightning-layer" onchange="toggleLayer('lightning')">
+                            <span>Lightning Risk</span>
+                        </label>
+                    </div>
+                    <div class="layer-toggle">
+                        <label>
+                            <input type="checkbox" id="visibility-layer" onchange="toggleLayer('visibility')">
+                            <span>Visibility Risk</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="map"></div>
+            </div>
+
+            <div class="chat-section">
+                <div class="chat-header">
+                    <h3>🤖 AI Weather Assistant</h3>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot">
+                        <p>Hello! I'm your AI weather assistant. Ask me about weather conditions, hazards, or get personalized advice for any location. Try asking "What's the weather like in Sulur today?"</p>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="Ask about weather..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>
