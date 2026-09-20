@@ -3,6 +3,10 @@ import requests
 import os
 from datetime import datetime
 import json
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -12,6 +16,17 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'your_openai_api_key')
 
 # Weather API base URL
 WEATHER_BASE_URL = "http://api.openweathermap.org/data/2.5"
+
+# Initialize notification services (optional - only if configured)
+try:
+    from services import NotificationService, SubscriptionManager, AlertDetector
+    notification_service = NotificationService()
+    subscription_manager = SubscriptionManager()
+    alert_detector = AlertDetector()
+    SERVICES_AVAILABLE = True
+except ImportError:
+    SERVICES_AVAILABLE = False
+    print("Notification services not available. Install required dependencies for full functionality.")
 
 @app.route('/')
 def index():
@@ -205,5 +220,104 @@ def weather(location):
     else:
         return jsonify({'error': 'Location not found'}), 404
 
+# Notification API endpoints
+@app.route('/api/subscribe', methods=['POST'])
+def subscribe():
+    """Subscribe to weather notifications"""
+    if not SERVICES_AVAILABLE:
+        return jsonify({'error': 'Notification services not available'}), 503
+    
+    data = request.json
+    email = data.get('email')
+    name = data.get('name', '')
+    phone = data.get('phone', '')
+    locations = data.get('locations', ['Sulur'])
+    
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+    
+    success = subscription_manager.add_subscriber(email, name, phone, locations)
+    if success:
+        return jsonify({'message': 'Successfully subscribed to weather notifications'})
+    else:
+        return jsonify({'error': 'Failed to subscribe. Email may already exist.'}), 400
+
+@app.route('/api/unsubscribe', methods=['POST'])
+def unsubscribe():
+    """Unsubscribe from weather notifications"""
+    if not SERVICES_AVAILABLE:
+        return jsonify({'error': 'Notification services not available'}), 503
+    
+    data = request.json
+    email = data.get('email')
+    
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+    
+    success = subscription_manager.remove_subscriber(email)
+    if success:
+        return jsonify({'message': 'Successfully unsubscribed'})
+    else:
+        return jsonify({'error': 'Failed to unsubscribe. Email not found.'}), 404
+
+@app.route('/api/subscriber/<email>')
+def get_subscriber(email):
+    """Get subscriber information"""
+    if not SERVICES_AVAILABLE:
+        return jsonify({'error': 'Notification services not available'}), 503
+    
+    subscriber = subscription_manager.get_subscriber(email)
+    if subscriber:
+        return jsonify(subscriber)
+    else:
+        return jsonify({'error': 'Subscriber not found'}), 404
+
+@app.route('/api/test-notification', methods=['POST'])
+def test_notification():
+    """Send a test notification"""
+    if not SERVICES_AVAILABLE:
+        return jsonify({'error': 'Notification services not available'}), 503
+    
+    data = request.json
+    email = data.get('email')
+    phone = data.get('phone')
+    
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+    
+    success = notification_service.send_test_notification(email, phone)
+    if success:
+        return jsonify({'message': 'Test notification sent successfully'})
+    else:
+        return jsonify({'error': 'Failed to send test notification'}), 500
+
+@app.route('/api/safety-score/<location>')
+def safety_score(location):
+    """Get safety score for a location"""
+    if not SERVICES_AVAILABLE:
+        return jsonify({'error': 'Notification services not available'}), 503
+    
+    weather_data = get_weather_data(location)
+    if weather_data:
+        score = alert_detector.calculate_safety_score(weather_data)
+        risk_level = alert_detector.get_risk_level(score)
+        return jsonify({
+            'location': location,
+            'safety_score': score,
+            'risk_level': risk_level,
+            'weather': weather_data
+        })
+    else:
+        return jsonify({'error': 'Location not found'}), 404
+
 if __name__ == '__main__':
+    # Start scheduler if enabled
+    if os.getenv('SCHEDULER_ENABLED', 'false').lower() == 'true' and SERVICES_AVAILABLE:
+        try:
+            from services import start_scheduler
+            start_scheduler()
+            print("Weather notification scheduler started")
+        except Exception as e:
+            print(f"Failed to start scheduler: {e}")
+    
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -1,0 +1,16 @@
+{
+  "subscribers": [
+    {
+      "email": "example@example.com",
+      "name": "Example User",
+      "phone": "+1234567890",
+      "locations": ["Sulur", "Chennai"],
+      "email_enabled": true,
+      "sms_enabled": false,
+      "daily_digest": true,
+      "severe_alerts": true,
+      "created_at": "2024-01-01T00:00:00",
+      "preferences": {}
+    }
+  ]
+}

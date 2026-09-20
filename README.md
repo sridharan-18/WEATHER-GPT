@@ -23,6 +23,13 @@ An interactive weather application with hazard mapping and AI-powered conversati
   - "Should I carry an umbrella?"
   - "Is it safe to travel tomorrow?"
 
+### 🔔 Proactive Notifications
+- **Severe-weather alerts** via email and SMS
+- **Daily weather digests** with safety scores
+- **Real-time monitoring** of multiple locations
+- **Smart alert detection** based on weather conditions
+- **User subscription management** with customizable preferences
+
 ## Tech Stack
 
 - **Frontend:** HTML, CSS, JavaScript, Leaflet.js
@@ -30,6 +37,9 @@ An interactive weather application with hazard mapping and AI-powered conversati
 - **AI Integration:** OpenAI GPT API
 - **Weather Data:** OpenWeatherMap API
 - **Mapping:** OpenStreetMap via Leaflet
+- **Email Notifications:** SMTP (Gmail, etc.)
+- **SMS Notifications:** Twilio API
+- **Task Scheduling:** Python Schedule Library
 
 ## Installation
 
@@ -58,14 +68,34 @@ cp .env.example .env
 
 Edit `.env` and add your API keys:
 ```
+# Weather API Configuration
 WEATHER_API_KEY=your_openweathermap_api_key
 OPENAI_API_KEY=your_openai_api_key
+
+# Email Notification Configuration (SMTP)
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your_email@gmail.com
+SMTP_PASSWORD=your_app_specific_password
+FROM_EMAIL=noreply@weathergpt.com
+
+# SMS Notification Configuration (Twilio)
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_FROM_NUMBER=+1234567890
+
+# Scheduler Configuration
+SCHEDULER_ENABLED=true
+DAILY_DIGEST_TIME=08:00
+WEATHER_CHECK_INTERVAL=3600
 ```
 
 ### Getting API Keys
 
 - **OpenWeatherMap:** Sign up at [openweathermap.org](https://openweathermap.org/api)
 - **OpenAI:** Get API key at [platform.openai.com](https://platform.openai.com/api-keys)
+- **Twilio (SMS):** Get account at [twilio.com](https://www.twilio.com)
+- **Gmail SMTP:** Use App Password if 2FA is enabled
 
 ## Usage
 
@@ -87,6 +117,11 @@ Navigate to `http://localhost:5000`
    - Get personalized advice for any location
    - Receive actionable recommendations
 
+5. **Enable notifications (optional):**
+   - Configure email/SMS settings in `.env`
+   - Subscribe to daily digests and severe weather alerts
+   - Run the scheduler: `python start_scheduler.py`
+
 ## Project Structure
 
 ```
@@ -95,6 +130,16 @@ WEATHER-GPT/
 ├── requirements.txt       # Python dependencies
 ├── .env.example          # Environment variables template
 ├── .gitignore            # Git ignore rules
+├── start_scheduler.py    # Standalone scheduler script
+├── test_notifications.py # Notification system test script
+├── services/
+│   ├── __init__.py      # Services package initialization
+│   ├── notification_service.py  # Main notification coordinator
+│   ├── email_service.py  # Email notification handler
+│   ├── sms_service.py    # SMS notification handler
+│   ├── alert_detector.py # Severe weather detection
+│   ├── subscription_manager.py # User subscription management
+│   └── scheduler.py      # Task scheduling system
 ├── static/
 │   ├── css/
 │   │   └── style.css     # Application styling
@@ -125,6 +170,80 @@ Each risk level is color-coded:
 - Personalized recommendations (clothing, travel, activities)
 - Safety advisories for extreme weather events
 
+### Notification System Features
+- **Severe Weather Detection:** Automatically detects dangerous conditions
+  - Extreme temperatures (heat/cold)
+  - Thunderstorms and lightning
+  - Heavy rain and flooding
+  - High winds
+  - Low visibility
+  - Tornadoes and extreme events
+
+- **Safety Scoring:** Calculates 0-100 safety score based on conditions
+  - 80-100: Low Risk (Green)
+  - 60-79: Moderate Risk (Yellow)
+  - 40-59: High Risk (Orange)
+  - 0-39: Very High Risk (Red)
+
+- **Smart Notifications:**
+  - Email alerts for all severe weather
+  - SMS alerts for critical conditions only
+  - Daily weather digests at scheduled times
+  - Location-specific monitoring
+
+- **Subscription Management:**
+  - Subscribe/unsubscribe via API
+  - Custom notification preferences
+  - Multiple location monitoring
+  - Email and SMS channel control
+
+## API Endpoints
+
+### Weather Endpoints
+- `GET /` - Main application page
+- `GET /api/weather/<location>` - Get weather data for a location
+- `GET /api/safety-score/<location>` - Get safety score for a location
+- `POST /api/chat` - AI chat interface
+
+### Notification Endpoints
+- `POST /api/subscribe` - Subscribe to weather notifications
+  ```json
+  {
+    "email": "user@example.com",
+    "name": "John Doe",
+    "phone": "+1234567890",
+    "locations": ["Sulur", "Chennai"]
+  }
+  ```
+- `POST /api/unsubscribe` - Unsubscribe from notifications
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+- `GET /api/subscriber/<email>` - Get subscriber information
+- `POST /api/test-notification` - Send test notification
+  ```json
+  {
+    "email": "user@example.com",
+    "phone": "+1234567890"
+  }
+  ```
+
+## Testing
+
+Run the notification system test:
+```bash
+python test_notifications.py
+```
+
+This will verify:
+- Environment variable configuration
+- Module imports
+- Alert detection system
+- Subscription management
+- Weather API connectivity
+
 ## Deployment
 
 The application can be deployed to various platforms:
@@ -132,6 +251,49 @@ The application can be deployed to various platforms:
 - **Render:** Connect GitHub repository for automatic deployment
 - **Railway:** Simple deployment with environment variables
 - **Vercel:** Serverless deployment option
+
+### Production Scheduler Setup
+
+For production deployment, run the scheduler as a background process:
+
+**Using systemd (Linux):**
+```ini
+# /etc/systemd/system/weather-scheduler.service
+[Unit]
+Description=Weather GPT Scheduler
+After=network.target
+
+[Service]
+Type=simple
+User=your_user
+WorkingDirectory=/path/to/WEATHER-GPT
+ExecStart=/usr/bin/python3 start_scheduler.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Using Supervisor:**
+```ini
+# /etc/supervisor/conf.d/weather-scheduler.conf
+[program:weather-scheduler]
+directory=/path/to/WEATHER-GPT
+command=python3 start_scheduler.py
+autostart=true
+autorestart=true
+user=your_user
+```
+
+**Using Docker:**
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "start_scheduler.py"]
+```
 
 ## License
 
@@ -151,3 +313,5 @@ Created by sridharan-18
 - OpenWeatherMap for weather data
 - OpenAI for GPT integration
 - OpenStreetMap for map tiles
+- Twilio for SMS notifications
+- Python Schedule for task scheduling
