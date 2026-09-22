@@ -37,6 +37,43 @@ header p {
     opacity: 0.9;
 }
 
+.main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.nav-btn {
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    border-color: white;
+}
+
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
 .main-content {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -181,4 +218,142 @@ header p {
     #map {
         height: 400px;
     }
+}
+
+/* Agriculture Section Styles */
+.agriculture-content {
+    padding: 20px;
+}
+
+.agriculture-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.agriculture-header h2 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.agriculture-header p {
+    color: #666;
+    font-size: 1.1em;
+}
+
+.agriculture-tools {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.tool-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tool-card h3 {
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.tool-card p {
+    color: #666;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}
+
+.tool-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tool-inputs input,
+.tool-inputs select {
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 1em;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.tool-inputs input:focus,
+.tool-inputs select:focus {
+    border-color: #667eea;
+}
+
+.tool-inputs button {
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.tool-inputs button:hover {
+    transform: scale(1.05);
+}
+
+.tool-results {
+    margin-top: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.tool-results h4 {
+    color: #333;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 5px;
+}
+
+.tool-results h5 {
+    color: #667eea;
+    margin: 10px 0 5px 0;
+}
+
+.tool-results p {
+    color: #555;
+    margin: 5px 0;
+}
+
+.tool-results ul {
+    margin-left: 20px;
+    margin-top: 5px;
+}
+
+.tool-results li {
+    color: #555;
+    margin: 5px 0;
+}
+
+.tool-results .error {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.crop-card {
+    background: #f0f0f0;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border-left: 4px solid #667eea;
+}
+
+.schedule-item {
+    background: #e8f4f8;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border-left: 4px solid #17a2b8;
 }

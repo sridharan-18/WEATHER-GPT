@@ -12,52 +12,150 @@
         <header>
             <h1>🌤️ Weather GPT</h1>
             <p>Interactive Hazard Map & AI Weather Assistant</p>
+            <nav class="main-nav">
+                <button class="nav-btn active" onclick="showSection('weather')">🌤️ Weather</button>
+                <button class="nav-btn" onclick="showSection('agriculture')">🌾 Agriculture</button>
+            </nav>
         </header>
 
-        <div class="main-content">
-            <div class="map-section">
-                <div class="layer-controls">
-                    <h3>Hazard Layers</h3>
-                    <div class="layer-toggle">
-                        <label>
-                            <input type="checkbox" id="flood-layer" onchange="toggleLayer('flood')">
-                            <span>Flood Risk</span>
-                        </label>
+        <!-- Weather Section -->
+        <div id="weather-section" class="section active">
+            <div class="main-content">
+                <div class="map-section">
+                    <div class="layer-controls">
+                        <h3>Hazard Layers</h3>
+                        <div class="layer-toggle">
+                            <label>
+                                <input type="checkbox" id="flood-layer" onchange="toggleLayer('flood')">
+                                <span>Flood Risk</span>
+                            </label>
+                        </div>
+                        <div class="layer-toggle">
+                            <label>
+                                <input type="checkbox" id="heat-layer" onchange="toggleLayer('heat')">
+                                <span>Heat Risk</span>
+                            </label>
+                        </div>
+                        <div class="layer-toggle">
+                            <label>
+                                <input type="checkbox" id="lightning-layer" onchange="toggleLayer('lightning')">
+                                <span>Lightning Risk</span>
+                            </label>
+                        </div>
+                        <div class="layer-toggle">
+                            <label>
+                                <input type="checkbox" id="visibility-layer" onchange="toggleLayer('visibility')">
+                                <span>Visibility Risk</span>
+                            </label>
+                        </div>
                     </div>
-                    <div class="layer-toggle">
-                        <label>
-                            <input type="checkbox" id="heat-layer" onchange="toggleLayer('heat')">
-                            <span>Heat Risk</span>
-                        </label>
-                    </div>
-                    <div class="layer-toggle">
-                        <label>
-                            <input type="checkbox" id="lightning-layer" onchange="toggleLayer('lightning')">
-                            <span>Lightning Risk</span>
-                        </label>
-                    </div>
-                    <div class="layer-toggle">
-                        <label>
-                            <input type="checkbox" id="visibility-layer" onchange="toggleLayer('visibility')">
-                            <span>Visibility Risk</span>
-                        </label>
-                    </div>
+                    <div id="map"></div>
                 </div>
-                <div id="map"></div>
-            </div>
 
-            <div class="chat-section">
-                <div class="chat-header">
-                    <h3>🤖 AI Weather Assistant</h3>
-                </div>
-                <div class="chat-messages" id="chat-messages">
-                    <div class="message bot">
-                        <p>Hello! I'm your AI weather assistant. Ask me about weather conditions, hazards, or get personalized advice for any location. Try asking "What's the weather like in Sulur today?"</p>
+                <div class="chat-section">
+                    <div class="chat-header">
+                        <h3>🤖 AI Weather Assistant</h3>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message bot">
+                            <p>Hello! I'm your AI weather assistant. Ask me about weather conditions, hazards, or get personalized advice for any location. Try asking "What's the weather like in Sulur today?"</p>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="user-input" placeholder="Ask about weather..." onkeypress="handleKeyPress(event)">
+                        <button onclick="sendMessage()">Send</button>
                     </div>
                 </div>
-                <div class="chat-input">
-                    <input type="text" id="user-input" placeholder="Ask about weather..." onkeypress="handleKeyPress(event)">
-                    <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+
+        <!-- Agriculture Section -->
+        <div id="agriculture-section" class="section">
+            <div class="agriculture-content">
+                <div class="agriculture-header">
+                    <h2>🌾 Agricultural Advisory System</h2>
+                    <p>Crop-specific recommendations, irrigation scheduling, and farmer action plans</p>
+                </div>
+
+                <div class="agriculture-tools">
+                    <div class="tool-card">
+                        <h3>🌱 Crop Recommendations</h3>
+                        <p>Get weather-based crop recommendations for your location</p>
+                        <div class="tool-inputs">
+                            <input type="text" id="crop-location" placeholder="Location (e.g., Sulur)" value="Sulur">
+                            <button onclick="getCropRecommendations()">Get Recommendations</button>
+                        </div>
+                        <div id="crop-results" class="tool-results"></div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3>💧 Irrigation Scheduler</h3>
+                        <p>Smart irrigation scheduling based on weather conditions</p>
+                        <div class="tool-inputs">
+                            <select id="irrigation-crop">
+                                <option value="">Select Crop</option>
+                                <option value="rice">Rice</option>
+                                <option value="wheat">Wheat</option>
+                                <option value="maize">Maize</option>
+                                <option value="cotton">Cotton</option>
+                                <option value="groundnut">Groundnut</option>
+                                <option value="tomato">Tomato</option>
+                            </select>
+                            <input type="number" id="soil-moisture" placeholder="Soil Moisture %" value="50" min="0" max="100">
+                            <button onclick="getIrrigationSchedule()">Get Schedule</button>
+                        </div>
+                        <div id="irrigation-results" class="tool-results"></div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3>🚜 Farmer Action Plan</h3>
+                        <p>Comprehensive action plans based on current weather</p>
+                        <div class="tool-inputs">
+                            <input type="text" id="action-location" placeholder="Location" value="Sulur">
+                            <button onclick="getActionPlan()">Generate Plan</button>
+                        </div>
+                        <div id="action-results" class="tool-results"></div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3>🌾 Harvest Advisor</h3>
+                        <p>Optimal harvesting timing recommendations</p>
+                        <div class="tool-inputs">
+                            <select id="harvest-crop">
+                                <option value="">Select Crop</option>
+                                <option value="rice">Rice</option>
+                                <option value="wheat">Wheat</option>
+                                <option value="maize">Maize</option>
+                                <option value="cotton">Cotton</option>
+                                <option value="tomato">Tomato</option>
+                            </select>
+                            <select id="growth-stage">
+                                <option value="mature">Mature</option>
+                                <option value="flowering">Flowering</option>
+                                <option value="fruit_set">Fruit Set</option>
+                                <option value="developing">Developing</option>
+                            </select>
+                            <button onclick="getHarvestAdvice()">Get Advice</button>
+                        </div>
+                        <div id="harvest-results" class="tool-results"></div>
+                    </div>
+
+                    <div class="tool-card">
+                        <h3>⛈️ Storm Impact Analyzer</h3>
+                        <p>Analyze storm impact on your crops</p>
+                        <div class="tool-inputs">
+                            <select id="storm-crop">
+                                <option value="">Select Crop</option>
+                                <option value="rice">Rice</option>
+                                <option value="wheat">Wheat</option>
+                                <option value="maize">Maize</option>
+                                <option value="banana">Banana</option>
+                                <option value="coconut">Coconut</option>
+                            </select>
+                            <button onclick="getStormImpact()">Analyze Impact</button>
+                        </div>
+                        <div id="storm-results" class="tool-results"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -66,5 +164,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{{ url_for('static', filename='js/map.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/agriculture.js') }}"></script>
 </body>
 </html>

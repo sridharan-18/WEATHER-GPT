@@ -30,6 +30,15 @@ An interactive weather application with hazard mapping and AI-powered conversati
 - **Smart alert detection** based on weather conditions
 - **User subscription management** with customizable preferences
 
+### 🌾 Agricultural Advisory System
+- **Crop-specific recommendations** based on weather conditions
+- **Smart irrigation scheduling** with water conservation tips
+- **Farmer action plans** with immediate and long-term recommendations
+- **Harvest timing recommendations** for optimal quality
+- **Storm impact analysis** with protection and recovery measures
+- **Multi-crop support** including rice, wheat, maize, cotton, vegetables, and fruits
+- **Growth stage sensitivity** analysis for vulnerable periods
+
 ## Tech Stack
 
 - **Frontend:** HTML, CSS, JavaScript, Leaflet.js
@@ -40,6 +49,7 @@ An interactive weather application with hazard mapping and AI-powered conversati
 - **Email Notifications:** SMTP (Gmail, etc.)
 - **SMS Notifications:** Twilio API
 - **Task Scheduling:** Python Schedule Library
+- **Agricultural Intelligence:** Custom crop database and advisory algorithms
 
 ## Installation
 
@@ -122,6 +132,14 @@ Navigate to `http://localhost:5000`
    - Subscribe to daily digests and severe weather alerts
    - Run the scheduler: `python start_scheduler.py`
 
+6. **Use agricultural features:**
+   - Navigate to the Agriculture section in the web interface
+   - Get crop recommendations based on current weather
+   - Use irrigation scheduling for water management
+   - Generate farmer action plans for comprehensive guidance
+   - Get harvest timing recommendations
+   - Analyze storm impact on your crops
+
 ## Project Structure
 
 ```
@@ -132,6 +150,7 @@ WEATHER-GPT/
 ├── .gitignore            # Git ignore rules
 ├── start_scheduler.py    # Standalone scheduler script
 ├── test_notifications.py # Notification system test script
+├── test_crop_db_direct.py # Agricultural features test script
 ├── services/
 │   ├── __init__.py      # Services package initialization
 │   ├── notification_service.py  # Main notification coordinator
@@ -139,13 +158,22 @@ WEATHER-GPT/
 │   ├── sms_service.py    # SMS notification handler
 │   ├── alert_detector.py # Severe weather detection
 │   ├── subscription_manager.py # User subscription management
-│   └── scheduler.py      # Task scheduling system
+│   ├── scheduler.py      # Task scheduling system
+│   └── agriculture/
+│       ├── __init__.py  # Agriculture services package
+│       ├── crop_database.py  # Comprehensive crop database
+│       ├── crop_advisor.py    # Crop recommendation engine
+│       ├── farmer_action_planner.py # Action plan generator
+│       ├── irrigation_scheduler.py  # Smart irrigation scheduling
+│       ├── harvest_advisor.py   # Harvest timing recommendations
+│       └── storm_impact_analyzer.py # Storm impact analysis
 ├── static/
 │   ├── css/
 │   │   └── style.css     # Application styling
 │   └── js/
 │       ├── map.js        # Leaflet map functionality
-│       └── chat.js       # Chat interface logic
+│       ├── chat.js       # Chat interface logic
+│       └── agriculture.js # Agricultural features interface
 └── templates/
     └── index.html        # Main HTML template
 ```
@@ -197,6 +225,52 @@ Each risk level is color-coded:
   - Multiple location monitoring
   - Email and SMS channel control
 
+### Agricultural Advisory Features
+- **Crop Database:** Comprehensive database with 10+ crops including:
+  - Cereals: Rice, Wheat, Maize
+  - Commercial: Cotton, Sugarcane
+  - Oilseeds: Groundnut
+  - Vegetables: Tomato
+  - Fruits: Banana, Coconut
+  - Spices: Turmeric
+
+- **Crop Recommendations:** AI-powered crop suggestions based on:
+  - Current weather conditions
+  - Temperature and humidity suitability
+  - Wind tolerance assessment
+  - Growth stage sensitivity
+  - Risk factor identification
+
+- **Irrigation Scheduling:** Smart water management with:
+  - Weather-adjusted irrigation timing
+  - Soil moisture-based recommendations
+  - Water conservation tips
+  - Multi-crop irrigation planning
+  - Urgency-based scheduling
+
+- **Harvest Advisory:** Optimal harvesting guidance with:
+  - Weather suitability assessment
+  - Quality impact predictions
+  - Harvest timing recommendations
+  - Post-harvest storage advice
+  - Multi-crop harvest planning
+
+- **Storm Impact Analysis:** Comprehensive storm assessment with:
+  - Severity level determination
+  - Crop-specific vulnerability analysis
+  - Damage percentage estimation
+  - Protection measure recommendations
+  - Recovery action plans
+  - Multi-crop impact comparison
+
+- **Farmer Action Plans:** Comprehensive planning with:
+  - Immediate action priorities
+  - Short-term recommendations (24-48 hours)
+  - Long-term planning (1 week+)
+  - Safety considerations for workers
+  - Resource requirements
+  - Monitoring requirements
+
 ## API Endpoints
 
 ### Weather Endpoints
@@ -230,6 +304,49 @@ Each risk level is color-coded:
   }
   ```
 
+### Agricultural Endpoints
+- `GET /api/agriculture/crops` - Get all available crops
+- `GET /api/agriculture/crop/<crop_name>` - Get information for a specific crop
+- `GET /api/agriculture/recommendations/<location>` - Get crop recommendations based on weather
+- `POST /api/agriculture/crop-advice` - Get detailed advice for a specific crop
+  ```json
+  {
+    "crop": "rice",
+    "location": "Sulur"
+  }
+  ```
+- `POST /api/agriculture/action-plan` - Get comprehensive farmer action plan
+  ```json
+  {
+    "location": "Sulur",
+    "crops": ["rice", "wheat"]
+  }
+  ```
+- `POST /api/agriculture/irrigation` - Get irrigation schedule
+  ```json
+  {
+    "crop": "rice",
+    "location": "Sulur",
+    "soil_moisture": 50
+  }
+  ```
+- `POST /api/agriculture/harvest` - Get harvest recommendations
+  ```json
+  {
+    "crop": "rice",
+    "location": "Sulur",
+    "growth_stage": "mature"
+  }
+  ```
+- `POST /api/agriculture/storm-impact` - Get storm impact analysis
+  ```json
+  {
+    "crop": "rice",
+    "location": "Sulur",
+    "growth_stage": "mature"
+  }
+  ```
+
 ## Testing
 
 Run the notification system test:
@@ -243,6 +360,17 @@ This will verify:
 - Alert detection system
 - Subscription management
 - Weather API connectivity
+
+Run the agricultural features test:
+```bash
+python test_crop_db_direct.py
+```
+
+This will verify:
+- Crop database functionality
+- Weather suitability assessment
+- Crop-specific recommendations
+- Agricultural service integration
 
 ## Deployment
 

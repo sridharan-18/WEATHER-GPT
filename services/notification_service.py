@@ -9,10 +9,10 @@ from typing import List, Dict, Optional
 import logging
 
 # Import sub-services
-from email_service import EmailService
-from sms_service import SMSService
-from alert_detector import AlertDetector
-from subscription_manager import SubscriptionManager
+from .email_service import EmailService
+from .sms_service import SMSService
+from .alert_detector import AlertDetector
+from .subscription_manager import SubscriptionManager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -28,6 +28,20 @@ except ImportError:
     SERVICES_AVAILABLE = False
     print("Notification services not available. Install required dependencies for full functionality.")
 
+# Initialize agricultural services (optional - only if configured)
+try:
+    from services import CropDatabase, CropAdvisor, FarmerActionPlanner, IrrigationScheduler, HarvestAdvisor, StormImpactAnalyzer
+    crop_database = CropDatabase()
+    crop_advisor = CropAdvisor()
+    farmer_action_planner = FarmerActionPlanner()
+    irrigation_scheduler = IrrigationScheduler()
+    harvest_advisor = HarvestAdvisor()
+    storm_impact_analyzer = StormImpactAnalyzer()
+    AGRICULTURE_AVAILABLE = True
+except ImportError:
+    AGRICULTURE_AVAILABLE = False
+    print("Agricultural services not available. Install required dependencies for agricultural features.")
+
 @app.route('/')
 def index():
     """Render the main page"""
@@ -307,6 +321,149 @@ def safety_score(location):
             'risk_level': risk_level,
             'weather': weather_data
         })
+    else:
+        return jsonify({'error': 'Location not found'}), 404
+
+# Agricultural API endpoints
+@app.route('/api/agriculture/crops')
+def get_crops():
+    """Get all available crops"""
+    if not AGRICULTURE_AVAILABLE:
+        return jsonify({'error': 'Agricultural services not available'}), 503
+    
+    crops = crop_database.get_all_crops()
+    return jsonify({'crops': crops})
+
+@app.route('/api/agriculture/crop/<crop_name>')
+def get_crop_info(crop_name):
+    """Get information for a specific crop"""
+    if not AGRICULTURE_AVAILABLE:
+        return jsonify({'error': 'Agricultural services not available'}), 503
+    
+    crop_info = crop_database.get_crop_info(crop_name)
+    if crop_info:
+        return jsonify(crop_info)
+    else:
+        return jsonify({'error': 'Crop not found'}), 404
+
+@app.route('/api/agriculture/recommendations/<location>')
+def get_crop_recommendations(location):
+    """Get crop recommendations based on weather conditions"""
+    if not AGRICULTURE_AVAILABLE:
+        return jsonify({'error': 'Agricultural services not available'}), 503
+    
+    weather_data = get_weather_data(location)
+    if weather_data:
+        recommendations = crop_advisor.get_crop_recommendations(weather_data, location)
+        return jsonify(recommendations)
+    else:
+        return jsonify({'error': 'Location not found'}), 404
+
+@app.route('/api/agriculture/crop-advice', methods=['POST'])
+def get_specific_crop_advice():
+    """Get detailed advice for a specific crop"""
+    if not AGRICULTURE_AVAILABLE:
+        return jsonify({'error': 'Agricultural services not available'}), 503
+    
+    data = request.json
+    crop_name = data.get('crop')
+    location = data.get('location', 'Sulur')
+    
+    if not crop_name:
+        return jsonify({'error': 'Crop name is required'}), 400
+    
+    weather_data = get_weather_data(location)
+    if weather_data:
+        advice = crop_advisor.get_specific_crop_advice(crop_name, weather_data)
+        return jsonify(advice)
+    else:
+        return jsonify({'error': 'Location not found'}), 404
+
+@app.route('/api/agriculture/action-plan', methods=['POST'])
+def get_farmer_action_plan():
+    """Get comprehensive farmer action plan"""
+    if not AGRICULTURE_AVAILABLE:
+        return jsonify({'error': 'Agricultural services not available'}), 503
+    
+    data = request.json
+    location = data.get('location', 'Sulur')
+    crops = data.get('crops', [])
+    
+    weather_data = get_weather_data(location)
+    if weather_data:
+        action_plan = farmer_action_planner.generate_comprehensive_action_plan(
+            weather_data, location, crops
+        )
+        return jsonify(action_plan)
+    else:
+        return jsonify({'error': 'Location not found'}), 404
+
+@app.route('/api/agriculture/irrigation', methods=['POST'])
+def get_irrigation_schedule():
+    """Get irrigation schedule for a crop"""
+    if not AGRICULTURE_AVAILABLE:
+        return jsonify({'error': 'Agricultural services not available'}), 503
+    
+    data = request.json
+    crop_name = data.get('crop')
+    location = data.get('location', 'Sulur')
+    soil_moisture = data.get('soil_moisture', 50)
+    
+    if not crop_name:
+        return jsonify({'error': 'Crop name is required'}), 400
+    
+    weather_data = get_weather_data(location)
+    if weather_data:
+        schedule = irrigation_scheduler.generate_irrigation_schedule(
+            weather_data, crop_name, soil_moisture
+        )
+        return jsonify(schedule)
+    else:
+        return jsonify({'error': 'Location not found'}), 404
+
+@app.route('/api/agriculture/harvest', methods=['POST'])
+def get_harvest_recommendations():
+    """Get harvest recommendations for a crop"""
+    if not AGRICULTURE_AVAILABLE:
+        return jsonify({'error': 'Agricultural services not available'}), 503
+    
+    data = request.json
+    crop_name = data.get('crop')
+    location = data.get('location', 'Sulur')
+    growth_stage = data.get('growth_stage', 'mature')
+    
+    if not crop_name:
+        return jsonify({'error': 'Crop name is required'}), 400
+    
+    weather_data = get_weather_data(location)
+    if weather_data:
+        harvest_rec = harvest_advisor.get_harvest_recommendations(
+            weather_data, crop_name, growth_stage
+        )
+        return jsonify(harvest_rec)
+    else:
+        return jsonify({'error': 'Location not found'}), 404
+
+@app.route('/api/agriculture/storm-impact', methods=['POST'])
+def get_storm_impact_analysis():
+    """Get storm impact analysis for a crop"""
+    if not AGRICULTURE_AVAILABLE:
+        return jsonify({'error': 'Agricultural services not available'}), 503
+    
+    data = request.json
+    crop_name = data.get('crop')
+    location = data.get('location', 'Sulur')
+    growth_stage = data.get('growth_stage', 'mature')
+    
+    if not crop_name:
+        return jsonify({'error': 'Crop name is required'}), 400
+    
+    weather_data = get_weather_data(location)
+    if weather_data:
+        storm_analysis = storm_impact_analyzer.analyze_storm_impact(
+            weather_data, crop_name, growth_stage
+        )
+        return jsonify(storm_analysis)
     else:
         return jsonify({'error': 'Location not found'}), 404
 
