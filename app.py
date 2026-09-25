@@ -42,6 +42,16 @@ except ImportError:
     AGRICULTURE_AVAILABLE = False
     print("Agricultural services not available. Install required dependencies for agricultural features.")
 
+# Initialize multilingual and accessibility services (optional - only if configured)
+try:
+    from services import TranslationService, VoiceAssistant, translation_service, voice_assistant
+    MULTILINGUAL_AVAILABLE = True
+except ImportError:
+    MULTILINGUAL_AVAILABLE = False
+    translation_service = None
+    voice_assistant = None
+    print("Multilingual and accessibility services not available. Install required dependencies for these features.")
+
 @app.route('/')
 def index():
     """Render the main page"""
@@ -466,6 +476,201 @@ def get_storm_impact_analysis():
         return jsonify(storm_analysis)
     else:
         return jsonify({'error': 'Location not found'}), 404
+
+# Multilingual API endpoints
+@app.route('/api/languages')
+def get_supported_languages():
+    """Get all supported languages"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Multilingual services not available'}), 503
+    
+    return jsonify({
+        'languages': translation_service.get_supported_languages(),
+        'current_language': translation_service.get_current_language()
+    })
+
+@app.route('/api/language', methods=['POST'])
+def set_language():
+    """Set the current language"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Multilingual services not available'}), 503
+    
+    data = request.json
+    language = data.get('language', 'en')
+    
+    success = translation_service.set_language(language)
+    if success:
+        return jsonify({
+            'message': f'Language set to {translation_service.supported_languages[language]}',
+            'current_language': translation_service.get_current_language()
+        })
+    else:
+        return jsonify({'error': 'Invalid language code'}), 400
+
+@app.route('/api/translate', methods=['POST'])
+def translate_text():
+    """Translate text to target language"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Multilingual services not available'}), 503
+    
+    data = request.json
+    text = data.get('text', '')
+    target_language = data.get('language', None)
+    
+    if not text:
+        return jsonify({'error': 'Text is required'}), 400
+    
+    # For simple UI translations, use the translation service
+    # For full AI responses, you would use a translation API
+    translated = translation_service.translate(text, target_language)
+    
+    return jsonify({
+        'original': text,
+        'translated': translated,
+        'language': target_language or translation_service.get_current_language()
+    })
+
+@app.route('/api/translate-weather', methods=['POST'])
+def translate_weather_response():
+    """Translate AI weather response to target language"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Multilingual services not available'}), 503
+    
+    data = request.json
+    response = data.get('response', '')
+    target_language = data.get('language', None)
+    
+    if not response:
+        return jsonify({'error': 'Response is required'}), 400
+    
+    translated = translation_service.translate_weather_response(response, target_language)
+    
+    return jsonify({
+        'original': response,
+        'translated': translated,
+        'language': target_language or translation_service.get_current_language()
+    })
+
+# Voice Assistant API endpoints
+@app.route('/api/voice/status')
+def get_voice_status():
+    """Get voice assistant status"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Voice assistant not available'}), 503
+    
+    return jsonify({
+        'enabled': voice_assistant.is_enabled(),
+        'language': voice_assistant.get_language(),
+        'settings': voice_assistant.get_voice_settings(),
+        'accessibility_features': voice_assistant.get_accessibility_features()
+    })
+
+@app.route('/api/voice/enable', methods=['POST'])
+def enable_voice():
+    """Enable voice assistant"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Voice assistant not available'}), 503
+    
+    voice_assistant.enable()
+    return jsonify({
+        'message': 'Voice assistant enabled',
+        'status': voice_assistant.get_accessibility_features()
+    })
+
+@app.route('/api/voice/disable', methods=['POST'])
+def disable_voice():
+    """Disable voice assistant"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Voice assistant not available'}), 503
+    
+    voice_assistant.disable()
+    return jsonify({
+        'message': 'Voice assistant disabled',
+        'status': voice_assistant.get_accessibility_features()
+    })
+
+@app.route('/api/voice/settings', methods=['POST'])
+def update_voice_settings():
+    """Update voice assistant settings"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Voice assistant not available'}), 503
+    
+    data = request.json
+    voice_assistant.update_voice_settings(data)
+    
+    return jsonify({
+        'message': 'Voice settings updated',
+        'settings': voice_assistant.get_voice_settings()
+    })
+
+@app.route('/api/voice/speak', methods=['POST'])
+def text_to_speech():
+    """Generate text-to-speech configuration"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Voice assistant not available'}), 503
+    
+    data = request.json
+    text = data.get('text', '')
+    language = data.get('language', None)
+    
+    if not text:
+        return jsonify({'error': 'Text is required'}), 400
+    
+    tts_config = voice_assistant.generate_tts_response(text, language)
+    
+    return jsonify(tts_config)
+
+@app.route('/api/voice/listen', methods=['POST'])
+def speech_to_text():
+    """Generate speech-to-text configuration"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Voice assistant not available'}), 503
+    
+    data = request.json
+    language = data.get('language', None)
+    
+    stt_config = voice_assistant.generate_stt_config(language)
+    
+    return jsonify(stt_config)
+
+@app.route('/api/voice/commands')
+def get_voice_commands():
+    """Get supported voice commands"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Voice assistant not available'}), 503
+    
+    language = request.args.get('language', None)
+    commands = voice_assistant.get_voice_commands(language)
+    
+    return jsonify({
+        'commands': commands,
+        'language': language or voice_assistant.get_language()
+    })
+
+@app.route('/api/voice/parse', methods=['POST'])
+def parse_voice_command():
+    """Parse voice command and extract intent"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Voice assistant not available'}), 503
+    
+    data = request.json
+    text = data.get('text', '')
+    language = data.get('language', None)
+    
+    if not text:
+        return jsonify({'error': 'Text is required'}), 400
+    
+    parsed_command = voice_assistant.parse_voice_command(text, language)
+    
+    return jsonify(parsed_command)
+
+@app.route('/api/accessibility')
+def get_accessibility_features():
+    """Get all accessibility features"""
+    if not MULTILINGUAL_AVAILABLE:
+        return jsonify({'error': 'Accessibility features not available'}), 503
+    
+    return jsonify(voice_assistant.get_accessibility_features())
 
 if __name__ == '__main__':
     # Start scheduler if enabled

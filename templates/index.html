@@ -6,16 +6,155 @@
     <title>Weather GPT - Interactive Hazard Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Multilingual and Voice Assistant Styles */
+        .language-selector {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .voice-controls {
+            display: flex;
+            gap: 8px;
+            margin-left: 20px;
+        }
+        
+        .voice-toggle, .voice-listen, .voice-speak {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .voice-toggle:hover, .voice-listen:hover, .voice-speak:hover {
+            background: #f0f0f0;
+            transform: scale(1.1);
+        }
+        
+        .voice-toggle.enabled {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        .voice-listen.listening {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .voice-speak.speaking {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .chat-input {
+            position: relative;
+        }
+        
+        .voice-input-indicator {
+            position: absolute;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .accessibility-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 300px;
+        }
+        
+        .accessibility-panel.active {
+            display: block;
+        }
+        
+        .accessibility-panel h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .accessibility-panel .setting {
+            margin-bottom: 15px;
+        }
+        
+        .accessibility-panel label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .accessibility-panel input[type="range"] {
+            width: 100%;
+        }
+        
+        .close-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🌤️ Weather GPT</h1>
+            <h1 data-i18n="app_title">🌤️ Weather GPT</h1>
             <p>Interactive Hazard Map & AI Weather Assistant</p>
             <nav class="main-nav">
                 <button class="nav-btn active" onclick="showSection('weather')">🌤️ Weather</button>
                 <button class="nav-btn" onclick="showSection('agriculture')">🌾 Agriculture</button>
             </nav>
+            <div class="header-controls">
+                <select id="language-selector" class="language-selector">
+                    <option value="en">English</option>
+                    <option value="ta">Tamil (தமிழ்)</option>
+                    <option value="hi">Hindi (हिंदी)</option>
+                    <option value="te">Telugu (తెలుగు)</option>
+                    <option value="ml">Malayalam (മലയാളം)</option>
+                    <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                    <option value="bn">Bengali (বাংলা)</option>
+                    <option value="mr">Marathi (मराठी)</option>
+                    <option value="gu">Gujarati (ગુજરાતી)</option>
+                </select>
+                <div id="voice-controls" class="voice-controls">
+                    <button id="voice-toggle" class="voice-toggle" title="Toggle Voice Assistant">🎤</button>
+                    <button id="voice-listen" class="voice-listen" title="Voice Input">🎧</button>
+                    <button id="voice-speak" class="voice-speak" title="Voice Output">🔊</button>
+                </div>
+            </div>
         </header>
 
         <!-- Weather Section -->
@@ -165,5 +304,116 @@
     <script src="{{ url_for('static', filename='js/map.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
     <script src="{{ url_for('static', filename='js/agriculture.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/multilingual.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/voice_assistant.js') }}"></script>
+    <script>
+        // Language selector event listener
+        document.getElementById('language-selector').addEventListener('change', async function() {
+            if (multilingualManager) {
+                await multilingualManager.setLanguage(this.value);
+            }
+        });
+
+        // Voice assistant event listeners
+        document.getElementById('voice-toggle').addEventListener('click', async function() {
+            if (voiceAssistant) {
+                if (voiceAssistant.isEnabled()) {
+                    await voiceAssistant.disable();
+                } else {
+                    await voiceAssistant.enable();
+                }
+            }
+        });
+
+        document.getElementById('voice-listen').addEventListener('click', function() {
+            if (voiceAssistant) {
+                if (voiceAssistant.isListeningActive()) {
+                    voiceAssistant.stopListening();
+                } else {
+                    voiceAssistant.startListening();
+                }
+            }
+        });
+
+        document.getElementById('voice-speak').addEventListener('click', function() {
+            if (voiceAssistant) {
+                if (voiceAssistant.isSpeakingActive()) {
+                    voiceAssistant.stopSpeaking();
+                } else {
+                    // Speak last chat response
+                    const lastResponse = document.querySelector('.chat-messages .message.bot:last-child p');
+                    if (lastResponse) {
+                        voiceAssistant.speak(lastResponse.textContent);
+                    }
+                }
+            }
+        });
+
+        // Voice result event listener
+        document.addEventListener('voiceResult', async function(event) {
+            const transcript = event.detail.transcript;
+            const language = event.detail.language;
+            
+            // Parse the voice command
+            if (voiceAssistant) {
+                const parsed = await voiceAssistant.parseCommand(transcript, language);
+                if (parsed && parsed.intent) {
+                    // Handle the parsed command
+                    handleVoiceCommand(parsed);
+                } else {
+                    // If not a command, treat as chat message
+                    document.getElementById('user-input').value = transcript;
+                    sendMessage();
+                }
+            }
+        });
+
+        // Voice error event listener
+        document.addEventListener('voiceError', function(event) {
+            console.error('Voice error:', event.detail.error);
+            // Show error message to user
+            addChatMessage('bot', 'Sorry, I couldn\'t understand that. Please try again.');
+        });
+
+        function handleVoiceCommand(parsed) {
+            const intent = parsed.intent;
+            const location = parsed.location;
+            
+            switch(intent) {
+                case 'weather':
+                    if (location) {
+                        document.getElementById('user-input').value = `What's the weather like in ${location}?`;
+                        sendMessage();
+                    } else {
+                        addChatMessage('bot', 'Please specify a location for weather information.');
+                    }
+                    break;
+                case 'temperature':
+                    if (location) {
+                        document.getElementById('user-input').value = `What's the temperature in ${location}?`;
+                        sendMessage();
+                    } else {
+                        addChatMessage('bot', 'Please specify a location for temperature information.');
+                    }
+                    break;
+                case 'help':
+                    addChatMessage('bot', 'I can help you with weather information. Try asking "What\'s the weather like in [location]?" or "What\'s the temperature in [location]?"');
+                    break;
+                default:
+                    // Unknown intent, treat as general query
+                    document.getElementById('user-input').value = parsed.original_text;
+                    sendMessage();
+            }
+        }
+
+        function addChatMessage(type, text) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `<p>${text}</p>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
 </body>
 </html>

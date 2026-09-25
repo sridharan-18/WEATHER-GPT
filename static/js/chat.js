@@ -35,8 +35,19 @@ async function sendMessage() {
         // Remove typing indicator
         removeTypingIndicator();
         
+        // Translate response if multilingual is enabled
+        let translatedResponse = data.response;
+        if (window.multilingualManager && window.multilingualManager.getCurrentLanguage() !== 'en') {
+            translatedResponse = await window.multilingualManager.translateWeatherResponse(data.response);
+        }
+        
         // Add bot response
-        addMessage(data.response, 'bot');
+        addMessage(translatedResponse, 'bot');
+        
+        // Speak response if voice assistant is enabled
+        if (window.voiceAssistant && window.voiceAssistant.isEnabled()) {
+            window.voiceAssistant.speak(translatedResponse);
+        }
         
     } catch (error) {
         removeTypingIndicator();
@@ -63,7 +74,25 @@ function showTypingIndicator() {
     const typingDiv = document.createElement('div');
     typingDiv.className = 'message bot typing-indicator';
     typingDiv.id = 'typing-indicator';
-    typingDiv.innerHTML = '<p>🤔 Thinking...</p>';
+    
+    // Use translated typing indicator based on current language
+    let typingText = '🤔 Thinking...';
+    if (window.multilingualManager) {
+        const lang = window.multilingualManager.getCurrentLanguage();
+        const typingTranslations = {
+            'ta': '🤔 நினைக்கிறது...',
+            'hi': '🤔 सोच रहा हूं...',
+            'te': '🤔 ఆలోచిస్తోంది...',
+            'ml': '🤔 ചിന്തുന്നു...',
+            'kn': '🤔 ಆಲೋಚಿಸುತ್ತಾದೆ...',
+            'bn': '🤔 ভাবছা করছি...',
+            'mr': '🤔 विचारत आहे...',
+            'gu': '🤔 વિચારુ છું...'
+        };
+        typingText = typingTranslations[lang] || typingText;
+    }
+    
+    typingDiv.innerHTML = `<p>${typingText}</p>`;
     chatMessages.appendChild(typingDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }

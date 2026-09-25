@@ -9,6 +9,18 @@ from .alert_detector import AlertDetector
 from .subscription_manager import SubscriptionManager
 from .scheduler import WeatherScheduler, start_scheduler, stop_scheduler, get_scheduler_status
 
+# Multilingual and accessibility services
+try:
+    from .translation_service import TranslationService, translation_service
+    from .voice_assistant import VoiceAssistant, voice_assistant
+    MULTILINGUAL_AVAILABLE = True
+except ImportError:
+    MULTILINGUAL_AVAILABLE = False
+    TranslationService = None
+    translation_service = None
+    VoiceAssistant = None
+    voice_assistant = None
+
 # Agriculture services (imported separately to avoid circular dependencies)
 try:
     from .agriculture.crop_database import CropDatabase
@@ -31,5 +43,10 @@ __all__ = [
     'start_scheduler',
     'stop_scheduler',
     'get_scheduler_status',
+    'TranslationService',
+    'translation_service',
+    'VoiceAssistant',
+    'voice_assistant',
+    'MULTILINGUAL_AVAILABLE',
     'AGRICULTURE_AVAILABLE'
 ]

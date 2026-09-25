@@ -4,3 +4,7 @@ openai==1.3.0
 python-dotenv==1.0.0
 schedule==1.2.0
 twilio==8.11.0
+
+# Note: Multilingual and voice assistant features use standard Python libraries
+# Frontend uses Web Speech API (built into modern browsers)
+# No additional dependencies required for these features

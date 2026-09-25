@@ -23,6 +23,30 @@ An interactive weather application with hazard mapping and AI-powered conversati
   - "Should I carry an umbrella?"
   - "Is it safe to travel tomorrow?"
 
+### 🌍 Multilingual Support
+- **Tamil (தமிழ்)** - Full Tamil language support for weather information
+- **Hindi (हिंदी)** - Complete Hindi language interface
+- **Telugu (తెలుగు)** - Telugu language support
+- **Malayalam (മലയാളം)** - Malayalam language interface
+- **Kannada (ಕನ್ನಡ)** - Kannada language support
+- **Bengali (বাংলা)** - Bengali language interface
+- **Marathi (मराठी)** - Marathi language support
+- **Gujarati (ગુજરાતી)** - Gujarati language interface
+- **Real-time language switching** without page reload
+- **Localized UI elements** including buttons, labels, and messages
+- **Translated weather advice** in all supported languages
+- **Accessibility-first design** for non-English speakers
+
+### 🎤 Voice Assistant Integration
+- **Text-to-Speech (TTS)** - Get weather information spoken aloud
+- **Speech-to-Text (STT)** - Ask weather questions using voice commands
+- **Voice Commands** in multiple Indian languages
+- **Hands-free operation** for accessibility
+- **Voice feedback** for all interactions
+- **Adjustable speech settings** (rate, pitch, volume)
+- **Browser-native implementation** using Web Speech API
+- **Accessibility features** for visually impaired users
+
 ### 🔔 Proactive Notifications
 - **Severe-weather alerts** via email and SMS
 - **Daily weather digests** with safety scores
@@ -159,6 +183,8 @@ WEATHER-GPT/
 │   ├── alert_detector.py # Severe weather detection
 │   ├── subscription_manager.py # User subscription management
 │   ├── scheduler.py      # Task scheduling system
+│   ├── translation_service.py  # Multilingual translation service
+│   ├── voice_assistant.py      # Voice assistant for accessibility
 │   └── agriculture/
 │       ├── __init__.py  # Agriculture services package
 │       ├── crop_database.py  # Comprehensive crop database
@@ -173,7 +199,9 @@ WEATHER-GPT/
 │   └── js/
 │       ├── map.js        # Leaflet map functionality
 │       ├── chat.js       # Chat interface logic
-│       └── agriculture.js # Agricultural features interface
+│       ├── agriculture.js # Agricultural features interface
+│       ├── multilingual.js  # Multilingual support module
+│       └── voice_assistant.js # Voice assistant module
 └── templates/
     └── index.html        # Main HTML template
 ```
@@ -197,6 +225,23 @@ Each risk level is color-coded:
 - Context-aware responses based on current conditions
 - Personalized recommendations (clothing, travel, activities)
 - Safety advisories for extreme weather events
+- **Multilingual responses** in supported Indian languages
+- **Voice-activated interactions** for accessibility
+
+### Multilingual Support
+- **9 Indian regional languages** including Tamil, Hindi, Telugu, Malayalam, Kannada, Bengali, Marathi, and Gujarati
+- **Real-time language switching** without page reload
+- **Localized UI elements** for complete language immersion
+- **Translated weather advice** and safety recommendations
+- **Accessibility-first design** for non-English speakers
+
+### Voice Assistant Integration
+- **Text-to-Speech (TTS)** for audio weather updates
+- **Speech-to-Text (STT)** for voice command input
+- **Voice commands** in multiple Indian languages
+- **Hands-free operation** for accessibility
+- **Adjustable speech settings** (rate, pitch, volume)
+- **Browser-native implementation** using Web Speech API
 
 ### Notification System Features
 - **Severe Weather Detection:** Automatically detects dangerous conditions
@@ -316,6 +361,94 @@ Each risk level is color-coded:
   }
   ```
 - `POST /api/agriculture/action-plan` - Get comprehensive farmer action plan
+  ```json
+  {
+    "location": "Sulur",
+    "crops": ["rice", "wheat"]
+  }
+  ```
+- `POST /api/agriculture/irrigation` - Get irrigation schedule
+  ```json
+  {
+    "crop": "rice",
+    "location": "Sulur",
+    "soil_moisture": 50
+  }
+  ```
+- `POST /api/agriculture/harvest` - Get harvest recommendations
+  ```json
+  {
+    "crop": "rice",
+    "location": "Sulur",
+    "growth_stage": "mature"
+  }
+  ```
+- `POST /api/agriculture/storm-impact` - Get storm impact analysis
+  ```json
+  {
+    "crop": "rice",
+    "location": "Sulur",
+    "growth_stage": "mature"
+  }
+  ```
+
+### Multilingual Endpoints
+- `GET /api/languages` - Get all supported languages
+- `POST /api/language` - Set the current language
+  ```json
+  {
+    "language": "ta"
+  }
+  ```
+- `POST /api/translate` - Translate text to target language
+  ```json
+  {
+    "text": "Weather",
+    "language": "ta"
+  }
+  ```
+- `POST /api/translate-weather` - Translate AI weather response
+  ```json
+  {
+    "response": "It's sunny today",
+    "language": "ta"
+  }
+  ```
+
+### Voice Assistant Endpoints
+- `GET /api/voice/status` - Get voice assistant status
+- `POST /api/voice/enable` - Enable voice assistant
+- `POST /api/voice/disable` - Disable voice assistant
+- `POST /api/voice/settings` - Update voice settings
+  ```json
+  {
+    "rate": 1.0,
+    "pitch": 1.0,
+    "volume": 1.0
+  }
+  ```
+- `POST /api/voice/speak` - Generate text-to-speech configuration
+  ```json
+  {
+    "text": "Weather update",
+    "language": "ta"
+  }
+  ```
+- `POST /api/voice/listen` - Generate speech-to-text configuration
+  ```json
+  {
+    "language": "ta"
+  }
+  ```
+- `GET /api/voice/commands` - Get supported voice commands
+- `POST /api/voice/parse` - Parse voice command and extract intent
+  ```json
+  {
+    "text": "What's the weather in Sulur?",
+    "language": "ta"
+  }
+  ```
+- `GET /api/accessibility` - Get all accessibility features
   ```json
   {
     "location": "Sulur",
