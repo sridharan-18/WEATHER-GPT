@@ -258,7 +258,20 @@ class CropDatabase:
         """Assess if current weather is suitable for a crop"""
         crop_info = self.get_crop_info(crop_name)
         if not crop_info:
-            return {'suitable': False, 'reason': 'Crop not found in database'}
+            # Fallback: search by display name (e.g. 'Maize (Corn)' -> 'maize')
+            for key, info in self.crops.items():
+                if info.get('name', '').lower() == crop_name.lower():
+                    crop_info = info
+                    break
+        if not crop_info:
+            return {
+                'suitable': False,
+                'reason': 'Crop not found in database',
+                'temperature': {'current': 0, 'optimal_range': (0, 0), 'suitable': False, 'deviation': 0},
+                'humidity': {'current': 0, 'optimal_range': (0, 0), 'suitable': False, 'deviation': 0},
+                'wind': {'current_speed': 0, 'tolerance': 'unknown', 'suitable': True},
+                'overall_assessment': 'Crop not found in database.'
+            }
         
         temp = weather_data['main']['temp']
         humidity = weather_data['main']['humidity']

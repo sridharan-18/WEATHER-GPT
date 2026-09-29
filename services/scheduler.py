@@ -10,8 +10,8 @@ from datetime import datetime
 from typing import Optional
 import threading
 
-from notification_service import NotificationService
-from alert_detector import AlertDetector
+from .notification_service import NotificationService
+from .alert_detector import AlertDetector
 from app import get_weather_data
 
 logging.basicConfig(level=logging.INFO)

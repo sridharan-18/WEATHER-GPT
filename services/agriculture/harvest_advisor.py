@@ -93,7 +93,7 @@ class HarvestAdvisor:
         temp_suitable = optimal_temp_range[0] <= temp <= optimal_temp_range[1]
         humidity_suitable = optimal_humidity_range[0] <= humidity <= optimal_humidity_range[1]
         wind_suitable = wind_speed < 20  # Generally avoid harvesting in high winds
-        weather_suitable = not any adverse in weather_condition for adverse in 
+        weather_suitable = not any(adverse in weather_condition for adverse in
                          ['storm', 'thunder', 'heavy rain', 'strong wind'])
         
         # Calculate overall suitability
