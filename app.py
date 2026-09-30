@@ -202,10 +202,10 @@ def generate_rule_based_response(user_message, weather_data):
         
         if temp > 30:
             advice.append("🥵 It's quite hot! Stay hydrated and avoid direct sunlight.")
-        elif temp < 15:
-            advice.append("🧥 It's chilly - dress warmly!")
         elif temp < 5:
             advice.append("❄️ It's very cold! Wear heavy layers and protect exposed skin.")
+        elif temp < 15:
+            advice.append("🧥 It's chilly - dress warmly!")
         
         if humidity > 80:
             advice.append("💧 High humidity - it might feel muggy. Consider staying indoors.")

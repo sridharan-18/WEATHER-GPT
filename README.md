@@ -455,30 +455,6 @@ Each risk level is color-coded:
     "crops": ["rice", "wheat"]
   }
   ```
-- `POST /api/agriculture/irrigation` - Get irrigation schedule
-  ```json
-  {
-    "crop": "rice",
-    "location": "Sulur",
-    "soil_moisture": 50
-  }
-  ```
-- `POST /api/agriculture/harvest` - Get harvest recommendations
-  ```json
-  {
-    "crop": "rice",
-    "location": "Sulur",
-    "growth_stage": "mature"
-  }
-  ```
-- `POST /api/agriculture/storm-impact` - Get storm impact analysis
-  ```json
-  {
-    "crop": "rice",
-    "location": "Sulur",
-    "growth_stage": "mature"
-  }
-  ```
 
 ## Testing
 
