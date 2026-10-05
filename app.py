@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, jsonify
-import requests
 import os
-from datetime import datetime
-import json
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -10,8 +11,19 @@ app = Flask(__name__)
 WEATHER_API_KEY = os.getenv('WEATHER_API_KEY', 'your_openweathermap_api_key')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'your_openai_api_key')
 
-# Weather API base URL
-WEATHER_BASE_URL = "http://api.openweathermap.org/data/2.5"
+# Initialize weather assistant service
+try:
+    from services import WeatherAssistant
+    weather_assistant = WeatherAssistant(
+        openai_api_key=OPENAI_API_KEY,
+        weather_api_key=WEATHER_API_KEY
+    )
+    ASSISTANT_AVAILABLE = True
+except ImportError:
+    ASSISTANT_AVAILABLE = False
+    print("Weather assistant service not available. Using fallback implementation.")
+    # Fallback to inline implementation
+    weather_assistant = None
 
 @app.route('/')
 def index():
@@ -28,55 +40,64 @@ def chat():
         return jsonify({'response': 'Please provide a message.'})
     
     try:
-        # Extract location from message if present
-        location = extract_location(user_message)
-        
-        if location:
-            # Get weather data for the location
-            weather_data = get_weather_data(location)
-            if weather_data:
-                # Generate AI response with weather context
-                ai_response = generate_ai_response(user_message, weather_data)
-                return jsonify({'response': ai_response})
-            else:
-                return jsonify({'response': f"Sorry, I couldn't find weather data for {location}. Please try a different location or check the spelling."})
+        if ASSISTANT_AVAILABLE and weather_assistant:
+            # Use modular weather assistant service
+            result = weather_assistant.process_query(user_message)
+            return jsonify(result)
         else:
-            # General AI response without weather data
-            ai_response = generate_ai_response(user_message, None)
-            return jsonify({'response': ai_response})
+            # Fallback to inline implementation
+            return chat_fallback(user_message)
             
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'response': 'Sorry, I encountered an error processing your request. Please try again.'})
 
+
+def chat_fallback(user_message):
+    """Fallback chat implementation when service is unavailable"""
+    import requests
+    
+    # Extract location from message if present
+    location = extract_location(user_message)
+    
+    if location:
+        # Get weather data for the location
+        weather_data = get_weather_data(location)
+        if weather_data:
+            # Generate AI response with weather context
+            ai_response = generate_ai_response(user_message, weather_data)
+            return jsonify({'response': ai_response})
+        else:
+            return jsonify({'response': f"Sorry, I couldn't find weather data for {location}. Please try a different location or check the spelling."})
+    else:
+        # General AI response without weather data
+        ai_response = generate_ai_response(user_message, None)
+        return jsonify({'response': ai_response})
+
+# Fallback functions (used when service is unavailable)
 def extract_location(message):
     """Extract location from user message"""
-    # Simple location extraction - looks for common patterns
     message_lower = message.lower()
-    
-    # Common location keywords
     location_keywords = ['in', 'at', 'for', 'near']
     
     for keyword in location_keywords:
         if keyword in message_lower:
-            # Get text after the keyword
             parts = message_lower.split(keyword)
             if len(parts) > 1:
                 potential_location = parts[1].strip()
-                # Remove common question words
                 potential_location = potential_location.replace('what', '').replace('the', '').replace('weather', '').replace('like', '').replace('is', '').replace('?', '').replace('.', '').strip()
                 
                 if potential_location and len(potential_location) > 2:
                     return potential_location.title()
     
-    # Default location if none found
     return None
+
 
 def get_weather_data(location):
     """Get weather data from OpenWeatherMap API"""
+    import requests
     try:
-        # Get current weather
-        url = f"{WEATHER_BASE_URL}/weather"
+        url = "http://api.openweathermap.org/data/2.5/weather"
         params = {
             'q': location,
             'appid': WEATHER_API_KEY,
@@ -95,18 +116,18 @@ def get_weather_data(location):
         print(f"Error fetching weather data: {e}")
         return None
 
+
 def generate_ai_response(user_message, weather_data):
     """Generate AI response using OpenAI or fallback logic"""
     try:
         if OPENAI_API_KEY and OPENAI_API_KEY != 'your_openai_api_key':
-            # Use OpenAI API
             return generate_openai_response(user_message, weather_data)
         else:
-            # Fallback to rule-based responses
             return generate_rule_based_response(user_message, weather_data)
     except Exception as e:
         print(f"Error generating AI response: {e}")
         return generate_rule_based_response(user_message, weather_data)
+
 
 def generate_openai_response(user_message, weather_data):
     """Generate response using OpenAI API"""
@@ -115,7 +136,6 @@ def generate_openai_response(user_message, weather_data):
         
         client = openai.OpenAI(api_key=OPENAI_API_KEY)
         
-        # Build context
         context = "You are a helpful weather assistant. Provide actionable advice based on weather conditions."
         
         if weather_data:
@@ -148,6 +168,7 @@ Current weather in {location}:
         print(f"OpenAI API error: {e}")
         return generate_rule_based_response(user_message, weather_data)
 
+
 def generate_rule_based_response(user_message, weather_data):
     """Generate rule-based responses without AI"""
     message_lower = user_message.lower()
@@ -158,7 +179,6 @@ def generate_rule_based_response(user_message, weather_data):
         description = weather_data['weather'][0]['description']
         location = weather_data['name']
         
-        # Generate actionable advice based on conditions
         advice = []
         
         if temp > 30:
@@ -188,7 +208,6 @@ def generate_rule_based_response(user_message, weather_data):
         
         return response
     else:
-        # General responses without weather data
         if 'hello' in message_lower or 'hi' in message_lower:
             return "Hello! 👋 I'm your weather assistant. Ask me about weather conditions in any location, and I'll provide you with current information and actionable advice!"
         elif 'help' in message_lower:
@@ -196,10 +215,15 @@ def generate_rule_based_response(user_message, weather_data):
         else:
             return "I'd be happy to help with weather information! Please specify a location, for example: 'What's the weather like in [city name]?'"
 
+
 @app.route('/api/weather/<location>')
 def weather(location):
     """Get weather data for a specific location"""
-    weather_data = get_weather_data(location)
+    if ASSISTANT_AVAILABLE and weather_assistant:
+        weather_data = weather_assistant.get_weather_data(location)
+    else:
+        weather_data = get_weather_data(location)
+    
     if weather_data:
         return jsonify(weather_data)
     else:
