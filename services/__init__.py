@@ -1,7 +1,9 @@
 """
-Services package for Weather GPT
+Services module for Weather GPT
+Contains modular services for weather assistant, notifications, agriculture, etc.
 """
 
+from .weather_assistant import WeatherAssistant
 from .notification_service import NotificationService
 from .email_service import EmailService
 from .sms_service import SMSService
@@ -34,6 +36,7 @@ except ImportError:
     AGRICULTURE_AVAILABLE = False
 
 __all__ = [
+    'WeatherAssistant',
     'NotificationService',
     'EmailService', 
     'SMSService',
