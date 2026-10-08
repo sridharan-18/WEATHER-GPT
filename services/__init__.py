@@ -9,7 +9,18 @@ from .email_service import EmailService
 from .sms_service import SMSService
 from .alert_detector import AlertDetector
 from .subscription_manager import SubscriptionManager
-from .scheduler import WeatherScheduler, start_scheduler, stop_scheduler, get_scheduler_status
+# Scheduler is imported lazily because it requires the 'schedule' package,
+# an optional dependency. Keep the services package importable even when it is
+# not installed, and fall back gracefully.
+try:
+    from .scheduler import WeatherScheduler, start_scheduler, stop_scheduler, get_scheduler_status
+    SCHEDULER_AVAILABLE = True
+except ImportError:
+    SCHEDULER_AVAILABLE = False
+    WeatherScheduler = None
+    start_scheduler = None
+    stop_scheduler = None
+    get_scheduler_status = None
 
 # Multilingual and accessibility services
 try:
@@ -46,6 +57,7 @@ __all__ = [
     'start_scheduler',
     'stop_scheduler',
     'get_scheduler_status',
+    'SCHEDULER_AVAILABLE',
     'TranslationService',
     'translation_service',
     'VoiceAssistant',

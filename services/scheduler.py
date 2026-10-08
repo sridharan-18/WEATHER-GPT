@@ -12,7 +12,6 @@ import threading
 
 from .notification_service import NotificationService
 from .alert_detector import AlertDetector
-from app import get_weather_data
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -81,6 +80,7 @@ class WeatherScheduler:
             
             for location in self.monitored_locations:
                 try:
+                    from app import get_weather_data
                     weather_data = get_weather_data(location)
                     if weather_data:
                         alerts_sent = self.notification_service.send_severe_weather_alert(
