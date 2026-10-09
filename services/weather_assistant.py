@@ -37,20 +37,22 @@ class WeatherAssistant:
         message_lower = message.lower()
         location_keywords = ['in', 'at', 'for', 'near']
         
-        for keyword in location_keywords:
-            if keyword in message_lower:
-                parts = message_lower.split(keyword)
-                if len(parts) > 1:
-                    potential_location = parts[1].strip()
-                    # Remove common question words
-                    potential_location = potential_location.replace('what', '').replace('the', '') \
-                        .replace('weather', '').replace('like', '').replace('is', '') \
-                        .replace('?', '').replace('.', '').strip()
-                    
-                    if potential_location and len(potential_location) > 2:
-                        return potential_location.title()
-        
+        # Match keywords as whole words, then use the text after the keyword.
+        # Whole-word matching avoids matching substrings inside words like
+        # "weather" (contains "at") or "wind" (contains "in").
+        words = message_lower.split()
+        for index, word in enumerate(words):
+            if word in location_keywords:
+                # The location is everything after this keyword
+                location = ' '.join(words[index + 1:])
+                # Remove trailing punctuation only (the location follows the keyword)
+                location = location.strip('?.,! \t')
+
+                if location and len(location) > 2:
+                    return location.title()
+
         return None
+
     
     def get_weather_data(self, location: str) -> Optional[Dict[str, Any]]:
         """
@@ -256,7 +258,7 @@ Current weather in {location}:
         else:
             # General responses without weather data
             if 'hello' in message_lower or 'hi' in message_lower:
-                return "Hello! 👋 I'm your AI weather assistant. Ask me about weather conditions in any location, and I'll provide you with current information and actionable advice!"
+                return f"Hello! 👋 I'm your AI weather assistant. You said: '{user_message}'. Ask me about weather conditions in any location, and I'll provide you with current information and actionable advice!"
             elif 'help' in message_lower:
                 return """I can help you with:
 • Current weather conditions for any location
