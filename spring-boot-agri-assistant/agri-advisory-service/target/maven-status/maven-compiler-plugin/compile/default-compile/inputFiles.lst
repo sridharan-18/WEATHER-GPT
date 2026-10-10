@@ -1,0 +1,8 @@
+C:\Users\sridh\WEATHER-GPT\spring-boot-agri-assistant\agri-advisory-service\src\main\java\com\agri\advisory\AgriAdvisoryApplication.java
+C:\Users\sridh\WEATHER-GPT\spring-boot-agri-assistant\agri-advisory-service\src\main\java\com\agri\advisory\dto\AdvisoryRequest.java
+C:\Users\sridh\WEATHER-GPT\spring-boot-agri-assistant\agri-advisory-service\src\main\java\com\agri\advisory\dto\AdvisoryResponse.java
+C:\Users\sridh\WEATHER-GPT\spring-boot-agri-assistant\agri-advisory-service\src\main\java\com\agri\advisory\service\AdvisoryController.java
+C:\Users\sridh\WEATHER-GPT\spring-boot-agri-assistant\agri-advisory-service\src\main\java\com\agri\advisory\service\AgroKnowledgeMatrix.java
+C:\Users\sridh\WEATHER-GPT\spring-boot-agri-assistant\agri-advisory-service\src\main\java\com\agri\advisory\service\GeminiService.java
+C:\Users\sridh\WEATHER-GPT\spring-boot-agri-assistant\agri-advisory-service\src\main\java\com\agri\advisory\service\LanguageDetector.java
+C:\Users\sridh\WEATHER-GPT\spring-boot-agri-assistant\agri-advisory-service\src\main\java\com\agri\advisory\service\WeatherService.java

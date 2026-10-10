@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multilingual AI-Powered Agricultural Assistant</title>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --primary: #2e7d32;
+            --primary-light: #4caf50;
+            --text: #212121;
+            --muted: #666;
+            --border: #ddd;
+            --danger: #c62828;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 24px;
+        }
+        .container { max-width: 960px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 24px; }
+        h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 8px; }
+        .subtitle { color: var(--muted); }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        h2 { color: var(--primary); margin-bottom: 12px; }
+        form { display: flex; flex-direction: column; gap: 12px; }
+        label { font-weight: 600; }
+        input[type="text"] {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        button {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: var(--primary-light); }
+        #response { margin-top: 16px; padding: 16px; background: #e8f5e9; border-radius: 6px; white-space: pre-wrap; font-size: 1rem; }
+        .sources { margin-top: 8px; font-size: 0.85rem; color: var(--muted); }
+        .sources span { display: block; margin-left: 12px; }
+        .history { margin-top: 24px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+        th { background: #e3f2fd; color: var(--primary); }
+        .empty { color: var(--muted); text-align: center; padding: 16px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🌾 Multilingual AI-Powered Agricultural Assistant</h1>
+        <p class="subtitle">Ask a question about crops, pests, weather, or farming in English or any Indian language.</p>
+    </header>
+
+    <div class="card">
+        <h2>Ask a Question</h2>
+        <form action="/ask" method="post">
+            <label for="userQuery">Your Question</label>
+            <input type="text" id="userQuery" name="userQuery" placeholder="e.g. What crop should I cultivate in this region considering rainfall?" required>
+            <label for="district">Location / District</label>
+            <input type="text" id="district" name="district" placeholder="e.g. Bangaluru, Tamil Nadu" required>
+            <button type="submit">Ask</button>
+        </form>
+    </div>
+
+    <div class="card" th:if="${log != null and !log.isEmpty()}">
+        <h2>Your Recent Questions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Your Question</th>
+                    <th>Language</th>
+                    <th>AI Response</th>
+                    <th>Sources</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="entry : ${log}">
+                    <td th:text="${entry.id}">1</td>
+                    <td th:text="${entry.userQuery}">What crop...?</td>
+                    <td th:text="${entry.detectedLanguage}">EN</td>
+                    <td th:text="${entry.aiResponse}">Response</td>
+                    <td class="sources">
+                        <span th:each="src : ${entry.sources}" th:text="${src}"></span>
+                    </td>
+                    <td th:text="${entry.createdTime}">2026-10-10 10:00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card" th:if="${log == null or log.isEmpty()}">
+        <p class="empty">Ask a question above to see your history here.</p>
+    </div>
+</div>
+</body>
+</html>

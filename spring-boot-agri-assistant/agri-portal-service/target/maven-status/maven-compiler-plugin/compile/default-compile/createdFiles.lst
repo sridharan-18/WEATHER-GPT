@@ -1,0 +1,4 @@
+com\agri\portal\dto\QueryLog.class
+com\agri\portal\controller\PortalController.class
+com\agri\portal\service\PortalService.class
+com\agri\portal\repository\QueryLogRepository.class

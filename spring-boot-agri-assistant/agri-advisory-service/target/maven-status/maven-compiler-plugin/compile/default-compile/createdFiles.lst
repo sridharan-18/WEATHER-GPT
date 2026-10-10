@@ -1,0 +1,9 @@
+com\agri\advisory\service\WeatherService$SimulatedWeather.class
+com\agri\advisory\dto\AdvisoryRequest.class
+com\agri\advisory\dto\AdvisoryResponse.class
+com\agri\advisory\service\GeminiService.class
+com\agri\advisory\service\WeatherService.class
+com\agri\advisory\service\LanguageDetector.class
+com\agri\advisory\AgriAdvisoryApplication.class
+com\agri\advisory\service\AdvisoryController.class
+com\agri\advisory\service\AgroKnowledgeMatrix.class
