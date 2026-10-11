@@ -28,8 +28,14 @@ def test_environment_setup():
     }
     
     print("\nRequired Variables:")
+    expected = {
+        'WEATHER_API_KEY': 'your_openweathermap_api_key',
+        'OPENAI_API_KEY': 'your_openai_api_key',
+        'SMTP_USERNAME': 'your_email@gmail.com',
+        'SMTP_PASSWORD': 'your_app_specific_password',
+    }
     for var, value in required_vars.items():
-        status = "✅ Set" if value and value != f'your_{var.lower()}' else "❌ Not set"
+        status = "✅ Set" if value and value != expected.get(var, f'your_{var.lower()}') else "❌ Not set"
         print(f"  {var}: {status}")
     
     print("\nOptional Variables (SMS):")

@@ -70,7 +70,9 @@ def index():
 @app.route('/api/chat', methods=['POST'])
 def chat():
     """Handle chat messages with AI integration"""
-    data = request.json
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     user_message = data.get('message', '')
     
     if not user_message:
@@ -141,7 +143,7 @@ def get_weather_data(location):
             'units': 'metric'
         }
         
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, timeout=10)
         
         if response.status_code == 200:
             return response.json()
