@@ -92,6 +92,17 @@ def chat():
         return jsonify({'response': 'Sorry, I encountered an error processing your request. Please try again.'})
 
 
+def _get_json_body():
+    """Safely parse the request body as JSON.
+
+    Returns the parsed dictionary, or None when the body is missing or not
+    valid JSON. API routes use this instead of request.json so they can
+    return a clean JSON error (rather than an HTML 415/500 page) for
+    malformed payloads.
+    """
+    return request.get_json(silent=True)
+
+
 def chat_fallback(user_message):
     """Fallback chat implementation when service is unavailable"""
     import requests
@@ -242,7 +253,7 @@ def generate_rule_based_response(user_message, weather_data):
         if 'storm' in description or 'thunder' in description:
             advice.append("⚡ Stormy conditions - stay indoors and avoid travel if possible.")
         
-        response = f"📍 Weather in {location}: {description}, {temp}°C (feels like {weather_data['main']['feels_like']}°C)\n\n"
+        response = f"📍 Weather in {location}: {description}, {temp}°C (feels like {weather_data['main'].get('feels_like', temp)}°C)\n\n"
         response += "💡 Advice:\n" + "\n".join(f"• {tip}" for tip in advice)
         
         return response
@@ -275,7 +286,9 @@ def subscribe():
     if not SERVICES_AVAILABLE:
         return jsonify({'error': 'Notification services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     email = data.get('email')
     name = data.get('name', '')
     phone = data.get('phone', '')
@@ -296,7 +309,9 @@ def unsubscribe():
     if not SERVICES_AVAILABLE:
         return jsonify({'error': 'Notification services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     email = data.get('email')
     
     if not email:
@@ -326,7 +341,9 @@ def test_notification():
     if not SERVICES_AVAILABLE:
         return jsonify({'error': 'Notification services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     email = data.get('email')
     phone = data.get('phone')
     
@@ -399,7 +416,9 @@ def get_specific_crop_advice():
     if not AGRICULTURE_AVAILABLE:
         return jsonify({'error': 'Agricultural services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     crop_name = data.get('crop')
     location = data.get('location', 'Sulur')
     
@@ -419,7 +438,9 @@ def get_farmer_action_plan():
     if not AGRICULTURE_AVAILABLE:
         return jsonify({'error': 'Agricultural services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     location = data.get('location', 'Sulur')
     crops = data.get('crops', [])
     
@@ -438,7 +459,9 @@ def get_irrigation_schedule():
     if not AGRICULTURE_AVAILABLE:
         return jsonify({'error': 'Agricultural services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     crop_name = data.get('crop')
     location = data.get('location', 'Sulur')
     soil_moisture = data.get('soil_moisture', 50)
@@ -461,7 +484,9 @@ def get_harvest_recommendations():
     if not AGRICULTURE_AVAILABLE:
         return jsonify({'error': 'Agricultural services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     crop_name = data.get('crop')
     location = data.get('location', 'Sulur')
     growth_stage = data.get('growth_stage', 'mature')
@@ -484,7 +509,9 @@ def get_storm_impact_analysis():
     if not AGRICULTURE_AVAILABLE:
         return jsonify({'error': 'Agricultural services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     crop_name = data.get('crop')
     location = data.get('location', 'Sulur')
     growth_stage = data.get('growth_stage', 'mature')
@@ -519,7 +546,9 @@ def set_language():
     if not MULTILINGUAL_AVAILABLE:
         return jsonify({'error': 'Multilingual services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     language = data.get('language', 'en')
     
     success = translation_service.set_language(language)
@@ -537,7 +566,9 @@ def translate_text():
     if not MULTILINGUAL_AVAILABLE:
         return jsonify({'error': 'Multilingual services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     text = data.get('text', '')
     target_language = data.get('language', None)
     
@@ -560,7 +591,9 @@ def translate_weather_response():
     if not MULTILINGUAL_AVAILABLE:
         return jsonify({'error': 'Multilingual services not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     response = data.get('response', '')
     target_language = data.get('language', None)
     
@@ -619,7 +652,9 @@ def update_voice_settings():
     if not MULTILINGUAL_AVAILABLE:
         return jsonify({'error': 'Voice assistant not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     voice_assistant.update_voice_settings(data)
     
     return jsonify({
@@ -633,7 +668,9 @@ def text_to_speech():
     if not MULTILINGUAL_AVAILABLE:
         return jsonify({'error': 'Voice assistant not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     text = data.get('text', '')
     language = data.get('language', None)
     
@@ -650,7 +687,9 @@ def speech_to_text():
     if not MULTILINGUAL_AVAILABLE:
         return jsonify({'error': 'Voice assistant not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     language = data.get('language', None)
     
     stt_config = voice_assistant.generate_stt_config(language)
@@ -677,7 +716,9 @@ def parse_voice_command():
     if not MULTILINGUAL_AVAILABLE:
         return jsonify({'error': 'Voice assistant not available'}), 503
     
-    data = request.json
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
     text = data.get('text', '')
     language = data.get('language', None)
     
