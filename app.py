@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 import os
-from datetime import datetime
-import json
 from dotenv import load_dotenv
 
 # Load environment variables

@@ -229,7 +229,7 @@ Each risk level is color-coded:
 - **Voice-activated interactions** for accessibility
 
 ### Multilingual Support
-- **9 Indian regional languages** including Tamil, Hindi, Telugu, Malayalam, Kannada, Bengali, Marathi, and Gujarati
+- **8 Indian regional languages** including Tamil, Hindi, Telugu, Malayalam, Kannada, Bengali, Marathi, and Gujarati
 - **Real-time language switching** without page reload
 - **Localized UI elements** for complete language immersion
 - **Translated weather advice** and safety recommendations
