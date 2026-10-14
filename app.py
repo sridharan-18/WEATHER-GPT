@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import os
+import re
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -295,6 +296,10 @@ def subscribe():
     if not email:
         return jsonify({'error': 'Email is required'}), 400
     
+    email = email.strip()
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return jsonify({'error': 'Invalid email format'}), 400
+    
     success = subscription_manager.add_subscriber(email, name, phone, locations)
     if success:
         return jsonify({'message': 'Successfully subscribed to weather notifications'})
@@ -314,6 +319,10 @@ def unsubscribe():
     
     if not email:
         return jsonify({'error': 'Email is required'}), 400
+    
+    email = email.strip()
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return jsonify({'error': 'Invalid email format'}), 400
     
     success = subscription_manager.remove_subscriber(email)
     if success:
@@ -347,6 +356,10 @@ def test_notification():
     
     if not email:
         return jsonify({'error': 'Email is required'}), 400
+    
+    email = email.strip()
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return jsonify({'error': 'Invalid email format'}), 400
     
     success = notification_service.send_test_notification(email, phone)
     if success:
