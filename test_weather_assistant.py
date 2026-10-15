@@ -303,11 +303,11 @@ class TestWeatherAssistantGPT(unittest.TestCase):
             weather_api_key='test_weather_key'
         )
     
-    @patch('services.weather_assistant.openai')
+    @patch('openai.OpenAI')
     def test_generate_gpt_response_success(self, mock_openai):
         """Test successful GPT response generation"""
         mock_client = MagicMock()
-        mock_openai.OpenAI.return_value = mock_client
+        mock_openai.return_value = mock_client
         
         mock_response = MagicMock()
         mock_response.choices = [MagicMock()]
@@ -329,10 +329,10 @@ class TestWeatherAssistantGPT(unittest.TestCase):
         self.assertEqual(response, "It's a beautiful day in London!")
         mock_client.chat.completions.create.assert_called_once()
     
-    @patch('services.weather_assistant.openai')
+    @patch('openai.OpenAI')
     def test_generate_gpt_response_fallback(self, mock_openai):
         """Test GPT response fallback on error"""
-        mock_openai.OpenAI.side_effect = Exception('API error')
+        mock_openai.side_effect = Exception('API error')
         
         weather_data = {
             'name': 'London',
