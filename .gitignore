@@ -42,6 +42,9 @@ next-env.d.ts
 subscriptions.json
 test_subscriptions.json
 
+# Generated test artifacts
+test_results.json
+
 # IDE
 .vscode/
 .idea/
