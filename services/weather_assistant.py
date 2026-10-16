@@ -21,7 +21,7 @@ class WeatherAssistant:
         """
         self.openai_api_key = openai_api_key or os.getenv('OPENAI_API_KEY', 'your_openai_api_key')
         self.weather_api_key = weather_api_key or os.getenv('WEATHER_API_KEY', 'your_openweathermap_api_key')
-        self.weather_base_url = "http://api.openweathermap.org/data/2.5"
+        self.weather_base_url = "https://api.openweathermap.org/data/2.5"
         self.use_gpt = self.openai_api_key and self.openai_api_key != 'your_openai_api_key'
     
     def extract_location(self, message: str) -> Optional[str]:
@@ -95,9 +95,11 @@ class WeatherAssistant:
             List of actionable advice strings
         """
         advice = []
-        temp = weather_data['main']['temp']
-        humidity = weather_data['main']['humidity']
-        description = weather_data['weather'][0]['description'].lower()
+        main = weather_data.get('main', {})
+        temp = main.get('temp')
+        humidity = main.get('humidity')
+        weather_list = weather_data.get('weather', [])
+        description = weather_list[0]['description'].lower() if weather_list else ''
         wind_speed = weather_data.get('wind', {}).get('speed', 0)
         visibility = weather_data.get('visibility', 10000) / 1000  # Convert to km
         

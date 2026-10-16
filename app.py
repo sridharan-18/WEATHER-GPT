@@ -146,7 +146,7 @@ def get_weather_data(location):
     """Get weather data from OpenWeatherMap API"""
     import requests
     try:
-        url = "http://api.openweathermap.org/data/2.5/weather"
+        url = "https://api.openweathermap.org/data/2.5/weather"
         params = {
             'q': location,
             'appid': WEATHER_API_KEY,
