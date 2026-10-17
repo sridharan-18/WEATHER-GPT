@@ -125,20 +125,35 @@ def chat_fallback(user_message):
 
 # Fallback functions (used when service is unavailable)
 def extract_location(message):
-    """Extract location from user message"""
+    """Extract location from user message using whole-word matching.
+
+    Extracts only the words immediately following a keyword (up to 2),
+    stopping at common filler words. This avoids picking up trailing
+    words like "today" or "tomorrow" as part of the location.
+    """
     message_lower = message.lower()
     location_keywords = ['in', 'at', 'for', 'near']
-    
-    for keyword in location_keywords:
-        if keyword in message_lower:
-            parts = message_lower.split(keyword)
-            if len(parts) > 1:
-                potential_location = parts[1].strip()
-                potential_location = potential_location.replace('what', '').replace('the', '').replace('weather', '').replace('like', '').replace('is', '').replace('?', '').replace('.', '').strip()
-                
-                if potential_location and len(potential_location) > 2:
-                    return potential_location.title()
-    
+    filler_words = {'today', 'tomorrow', 'and', 'please', 'if', 'the', 'a', 'an', 'it', 'of', 'on', 'to', 'with', 'from', 'is'}
+    words = message_lower.split()
+
+    for index, word in enumerate(words):
+        if word in location_keywords:
+            # Take up to 2 words after the keyword, stopping at filler words
+            # like "today" or "tomorrow". This prevents trailing words from
+            # being incorrectly included in the extracted location.
+            location_words = []
+            for w in words[index + 1:]:
+                w = w.strip('?.,!:\t')
+                if not w:
+                    continue
+                if w.lower() in filler_words:
+                    break
+                location_words.append(w)
+                if len(location_words) >= 2:
+                    break
+            potential_location = ' '.join(location_words)
+            if potential_location and len(potential_location) > 2:
+                return potential_location.title()
     return None
 
 

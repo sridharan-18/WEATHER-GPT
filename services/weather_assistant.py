@@ -27,26 +27,37 @@ class WeatherAssistant:
     def extract_location(self, message: str) -> Optional[str]:
         """
         Extract location from user message using pattern matching
-        
+
         Args:
             message: User's message
-            
+
         Returns:
             Extracted location or None
         """
         message_lower = message.lower()
         location_keywords = ['in', 'at', 'for', 'near']
-        
+        filler_words = {'today', 'tomorrow', 'and', 'please', 'if', 'the', 'a', 'an', 'it', 'of', 'on', 'to', 'with', 'from', 'is'}
+
         # Match keywords as whole words, then use the text after the keyword.
         # Whole-word matching avoids matching substrings inside words like
         # "weather" (contains "at") or "wind" (contains "in").
         words = message_lower.split()
         for index, word in enumerate(words):
             if word in location_keywords:
-                # The location is everything after this keyword
-                location = ' '.join(words[index + 1:])
-                # Remove trailing punctuation only (the location follows the keyword)
-                location = location.strip('?.,! \t')
+                # Take up to 2 words after the keyword, stopping at filler words
+                # like "today" or "tomorrow". This prevents trailing words from
+                # being incorrectly included in the extracted location.
+                location_words = []
+                for w in words[index + 1:]:
+                    w = w.strip('?.,!:\t')
+                    if not w:
+                        continue
+                    if w.lower() in filler_words:
+                        break
+                    location_words.append(w)
+                    if len(location_words) >= 2:
+                        break
+                location = ' '.join(location_words)
 
                 if location and len(location) > 2:
                     return location.title()
