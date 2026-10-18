@@ -255,18 +255,25 @@ Current weather in {location}:
         message_lower = user_message.lower()
         
         if weather_data:
-            temp = weather_data['main']['temp']
-            humidity = weather_data['main']['humidity']
-            description = weather_data['weather'][0]['description']
-            location = weather_data['name']
-            feels_like = weather_data['main']['feels_like']
-            
+            # Use .get() with defaults so the function doesn't crash on partial
+            # weather data (e.g. a malformed or incomplete API response).
+            main = weather_data.get('main', {}) or {}
+            temp = main.get('temp')
+            humidity = main.get('humidity')
+            weather_list = weather_data.get('weather', []) or []
+            description = weather_list[0].get('description', 'unknown') if weather_list else 'unknown'
+            location = weather_data.get('name', 'Unknown location')
+            feels_like = main.get('feels_like', temp)
+
             # Generate actionable advice
             advice = self.generate_actionable_advice(weather_data)
-            
-            response = f"📍 Weather in {location}: {description}, {temp}°C (feels like {feels_like}°C)\n\n"
+
+            # Format values for display (convert None to 'unknown' for safety).
+            temp_display = f"{temp}°C" if temp is not None else "unknown°C"
+            feels_like_display = f"{feels_like}°C" if feels_like is not None else "unknown°C"
+            response = f"📍 Weather in {location}: {description}, {temp_display} (feels like {feels_like_display})\n\n"
             response += "💡 Actionable Advice:\n" + "\n".join(f"• {tip}" for tip in advice)
-            
+
             return response
         else:
             # General responses without weather data

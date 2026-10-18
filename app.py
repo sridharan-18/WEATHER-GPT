@@ -238,33 +238,43 @@ def generate_rule_based_response(user_message, weather_data):
     message_lower = user_message.lower()
     
     if weather_data:
-        temp = weather_data['main']['temp']
-        humidity = weather_data['main']['humidity']
-        description = weather_data['weather'][0]['description']
-        location = weather_data['name']
-        
+        # Use .get() with defaults so the function doesn't crash on partial
+        # weather data (e.g. a malformed or incomplete API response).
+        main = weather_data.get('main', {}) or {}
+        temp = main.get('temp')
+        humidity = main.get('humidity')
+        weather_list = weather_data.get('weather', []) or []
+        description = weather_list[0].get('description', 'unknown') if weather_list else 'unknown'
+        location = weather_data.get('name', 'Unknown location')
+
         advice = []
         
-        if temp > 30:
-            advice.append("🥵 It's quite hot! Stay hydrated and avoid direct sunlight.")
-        elif temp < 5:
-            advice.append("❄️ It's very cold! Wear heavy layers and protect exposed skin.")
-        elif temp < 15:
-            advice.append("🧥 It's chilly - dress warmly!")
+        if isinstance(temp, (int, float)):
+            if temp > 30:
+                advice.append("🥵 It's quite hot! Stay hydrated and avoid direct sunlight.")
+            elif temp < 5:
+                advice.append("❄️ It's very cold! Wear heavy layers and protect exposed skin.")
+            elif temp < 15:
+                advice.append("🧥 It's chilly - dress warmly!")
         
-        if humidity > 80:
-            advice.append("💧 High humidity - it might feel muggy. Consider staying indoors.")
-        elif humidity < 30:
-            advice.append("🌵 Low humidity - stay moisturized and drink plenty of water.")
+        if isinstance(humidity, (int, float)):
+            if humidity > 80:
+                advice.append("💧 High humidity - it might feel muggy. Consider staying indoors.")
+            elif humidity < 30:
+                advice.append("🌵 Low humidity - stay moisturized and drink plenty of water.")
         
-        if 'rain' in description or 'drizzle' in description:
-            advice.append("☔ Don't forget an umbrella or raincoat!")
-        elif 'clear' in description:
-            advice.append("😎 Great weather for outdoor activities!")
-        elif 'cloud' in description:
-            advice.append("☁️ Partly cloudy - pleasant weather overall.")
-        
-        if 'storm' in description or 'thunder' in description:
+        if isinstance(description, str) and description:
+            desc_lower = description.lower()
+            if 'rain' in desc_lower or 'drizzle' in desc_lower:
+                advice.append("☔ Don't forget an umbrella or raincoat!")
+            elif 'clear' in desc_lower:
+                advice.append("😎 Great weather for outdoor activities!")
+            elif 'cloud' in desc_lower:
+                advice.append("☁️ Partly cloudy - pleasant weather overall.")
+            elif 'storm' in desc_lower or 'thunder' in desc_lower:
+                advice.append("⚡ Stormy conditions - stay indoors and avoid travel if possible.")
+
+        if isinstance(description, str) and ('storm' in description or 'thunder' in description):
             advice.append("⚡ Stormy conditions - stay indoors and avoid travel if possible.")
         
         response = f"📍 Weather in {location}: {description}, {temp}°C (feels like {weather_data['main'].get('feels_like', temp)}°C)\n\n"

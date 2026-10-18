@@ -19,7 +19,13 @@ class EmailService:
     
     def __init__(self):
         self.smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
-        self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
+        # The port must be a valid integer; fall back to the default if the
+        # environment variable is misconfigured, so a typo doesn't crash the app.
+        try:
+            self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
+        except ValueError:
+            logger.warning(f"Invalid SMTP_PORT value: {os.getenv('SMTP_PORT')!r}. Using default 587.")
+            self.smtp_port = 587
         self.smtp_username = os.getenv('SMTP_USERNAME', '')
         self.smtp_password = os.getenv('SMTP_PASSWORD', '')
         self.from_email = os.getenv('FROM_EMAIL', 'noreply@weathergpt.com')
