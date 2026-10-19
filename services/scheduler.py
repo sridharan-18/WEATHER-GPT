@@ -4,6 +4,7 @@ Handles scheduled tasks like daily weather digests and periodic weather checks
 """
 
 import schedule
+import os
 import time
 import logging
 from datetime import datetime
@@ -26,6 +27,10 @@ class WeatherScheduler:
         self.running = False
         self.scheduler_thread: Optional[threading.Thread] = None
         self.monitored_locations = ['Sulur', 'Coimbatore', 'Chennai', 'Bangalore']
+        # Configuration loaded from the environment. Defaults match the values
+        # documented in .env.example and README.md.
+        self.daily_digest_time = os.getenv('DAILY_DIGEST_TIME', '08:00')
+        self.weather_check_interval = int(os.getenv('WEATHER_CHECK_INTERVAL', '3600'))
     
     def start(self):
         """Start the scheduler"""
@@ -35,11 +40,11 @@ class WeatherScheduler:
         
         self.running = True
         
-        # Schedule daily digest at 8:00 AM
-        schedule.every().day.at("08:00").do(self._send_daily_digest)
+        # Schedule daily digest at the configured time
+        schedule.every().day.at(self.daily_digest_time).do(self._send_daily_digest)
         
-        # Schedule weather checks every hour for severe weather
-        schedule.every().hour.do(self._check_severe_weather)
+        # Schedule weather checks at the configured interval (in minutes)
+        schedule.every(self.weather_check_interval).minutes.do(self._check_severe_weather)
         
         # Start scheduler in background thread
         self.scheduler_thread = threading.Thread(target=self._run_scheduler, daemon=True)

@@ -321,7 +321,7 @@ class HarvestAdvisor:
         # Crop-specific precautions
         if crop['storm_impact_risk'] == 'high':
             precautions.append("⚠️ Monitor weather forecasts for storm warnings")
-            precautions.append("🛡️ Consider提前 harvesting if storms are predicted")
+            precautions.append("🛡️ Consider early harvesting if storms are predicted")
         
         precautions.append("📱 Monitor weather conditions during harvest")
         precautions.append("🚑 Have emergency plan for sudden weather changes")
