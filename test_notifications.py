@@ -43,7 +43,7 @@ def test_environment_setup():
         status = "✅ Set" if value and value != f'your_{var.lower()}' else "⚠️ Not set (optional)"
         print(f"  {var}: {status}")
     
-    return all(value and value != f'your_{var.lower()}' for var, value in required_vars.items())
+    return all(value and value != expected.get(var, f'your_{var.lower()}') for var, value in required_vars.items())
 
 def test_imports():
     """Test if all required modules can be imported"""
