@@ -30,7 +30,14 @@ class WeatherScheduler:
         # Configuration loaded from the environment. Defaults match the values
         # documented in .env.example and README.md.
         self.daily_digest_time = os.getenv('DAILY_DIGEST_TIME', '08:00')
-        self.weather_check_interval = int(os.getenv('WEATHER_CHECK_INTERVAL', '3600'))
+        try:
+            self.weather_check_interval = int(os.getenv('WEATHER_CHECK_INTERVAL', '3600'))
+        except ValueError:
+            logger.warning(
+                f"Invalid WEATHER_CHECK_INTERVAL value: {os.getenv('WEATHER_CHECK_INTERVAL')!r}. "
+                f"Using default 3600."
+            )
+            self.weather_check_interval = 3600
     
     def start(self):
         """Start the scheduler"""
@@ -131,7 +138,7 @@ class WeatherScheduler:
         return {
             'running': self.running,
             'monitored_locations': self.monitored_locations,
-            'next_daily_digest': self._get_next_run_time('08:00'),
+            'next_daily_digest': self._get_next_run_time(self.daily_digest_time),
             'next_weather_check': self._get_next_run_time('hourly')
         }
     
@@ -147,7 +154,7 @@ class WeatherScheduler:
                 next_hour = (datetime.now().replace(minute=0, second=0, microsecond=0) + 
                            timedelta(hours=1))
                 return next_hour.strftime('%Y-%m-%d %H:%M:%S')
-        except:
+        except Exception:
             return 'Unknown'
         return 'Unknown'
 
