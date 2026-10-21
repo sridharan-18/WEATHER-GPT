@@ -145,15 +145,18 @@ class WeatherScheduler:
     def _get_next_run_time(self, schedule_type: str) -> str:
         """Get next run time for a scheduled task"""
         try:
-            if schedule_type == '08:00':
+            # Compare against the configured daily digest time, not a
+            # hardcoded value, so custom DAILY_DIGEST_TIME values are honored.
+            if schedule_type == self.daily_digest_time:
                 job = schedule.next_run()
                 return job.strftime('%Y-%m-%d %H:%M:%S') if job else 'Not scheduled'
             elif schedule_type == 'hourly':
-                # For hourly, just return next hour
+                # For the weather check, estimate the next run from the
+                # configured interval (in minutes) rather than a fixed hour.
                 from datetime import datetime, timedelta
-                next_hour = (datetime.now().replace(minute=0, second=0, microsecond=0) + 
-                           timedelta(hours=1))
-                return next_hour.strftime('%Y-%m-%d %H:%M:%S')
+                interval = getattr(self, 'weather_check_interval', 60)
+                next_run = datetime.now() + timedelta(minutes=interval)
+                return next_run.strftime('%Y-%m-%d %H:%M:%S')
         except Exception:
             return 'Unknown'
         return 'Unknown'
