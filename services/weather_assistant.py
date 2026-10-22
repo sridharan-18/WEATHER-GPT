@@ -123,7 +123,7 @@ class WeatherAssistant:
             advice.append("❄️ It's very cold! Wear heavy layers, protect exposed skin, and limit time outdoors.")
         elif temp < 15:
             advice.append("🧥 It's chilly - dress warmly in layers!")
-        elif temp > 20 and temp < 28:
+        elif temp <= 30:
             advice.append("😊 Pleasant temperature - great for outdoor activities!")
         
         # Humidity-based advice
