@@ -1,27 +1,35 @@
 # 🌤️ Weather GPT - Interactive Hazard Map
 
-An interactive weather application with hazard mapping and AI-powered conversational assistance.
+An interactive weather application with hazard mapping and AI-powered conversational assistance for **global locations worldwide**.
 
 ## Features
 
 ### 🗺️ Interactive Hazard Map
 - **Leaflet-based map** with hyperlocal zoom capabilities
+- **Global coverage** - View hazards for any location worldwide
+- **Dynamic hazard data** - Automatically generates risk data for any map view
+- **Location search** - Search any city, town, or location globally
+- **Enhanced geolocation** - Detect user's location with accuracy indicators
 - **Multiple hazard risk layers:**
   - 🌊 Flood Risk
   - 🔥 Heat Risk  
   - ⚡ Lightning Risk
   - 👁️ Visibility Risk
 - Color-coded risk indicators (High/Medium/Low)
-- Click-to-explore location details
+- Click-to-explore location details with reverse geocoding
+- Real-time hazard updates when map is moved or location is searched
 
 ### 🤖 AI Conversational Assistant
 - **GPT-powered weather Q&A** for natural language queries
+- **Global location support** - Ask about weather in any city worldwide
 - **Actionable weather advice** tailored to current conditions
 - **Location-specific insights** with personalized recommendations
+- **Enhanced location extraction** - Better parsing of location names
 - Examples:
-  - "What's the weather like in Sulur today?"
-  - "Should I carry an umbrella?"
-  - "Is it safe to travel tomorrow?"
+  - "What's the weather like in Tokyo today?"
+  - "Should I carry an umbrella in London?"
+  - "Is it safe to travel to New York tomorrow?"
+  - "Weather conditions in Sydney"
 
 ### 🌍 Multilingual Support
 - **Tamil (தமிழ்)** - Full Tamil language support for weather information
@@ -56,11 +64,19 @@ An interactive weather application with hazard mapping and AI-powered conversati
 
 ### 🌾 Agricultural Advisory System
 - **Crop-specific recommendations** based on weather conditions
+- **Global crop database** with 15+ crops including international varieties
 - **Smart irrigation scheduling** with water conservation tips
 - **Farmer action plans** with immediate and long-term recommendations
 - **Harvest timing recommendations** for optimal quality
 - **Storm impact analysis** with protection and recovery measures
-- **Multi-crop support** including rice, wheat, maize, cotton, vegetables, and fruits
+- **Multi-crop support** including:
+  - Cereals: Rice, Wheat, Maize (with global varieties)
+  - Commercial: Cotton, Sugarcane, Coffee, Cocoa
+  - Oilseeds: Groundnut, Soybean
+  - Vegetables: Potato, Tomato
+  - Fruits: Banana, Coconut, Grapes
+  - Spices: Turmeric
+- **Regional variety support** for different agricultural regions worldwide
 - **Growth stage sensitivity** analysis for vulnerable periods
 
 ## Tech Stack
@@ -143,13 +159,20 @@ Navigate to `http://localhost:5000`
 
 3. **Use the map:**
    - Toggle hazard layers using checkboxes
-   - Click on map to see location details
-   - Zoom into hyperlocal regions
+   - Search any location worldwide using the search bar
+   - Click on map to see location details with reverse geocoding
+   - Use the location button (📍) to detect your current position
+   - Zoom into hyperlocal regions for detailed view
+   - Hazard data automatically updates when you move the map
 
 4. **Chat with AI assistant:**
    - Ask weather questions in natural language
-   - Get personalized advice for any location
+   - Get personalized advice for any global location
    - Receive actionable recommendations
+   - Example queries:
+     - "What's the weather like in Paris?"
+     - "Temperature in Dubai?"
+     - "Should I carry an umbrella in Mumbai?"
 
 5. **Enable notifications (optional):**
    - Configure email/SMS settings in `.env`
@@ -175,6 +198,7 @@ WEATHER-GPT/
 ├── start_scheduler.py    # Standalone scheduler script
 ├── test_notifications.py # Notification system test script
 ├── test_crop_db_direct.py # Agricultural features test script
+├── test_global_locations.py # Global location testing script
 ├── services/
 │   ├── __init__.py      # Services package initialization
 │   ├── notification_service.py  # Main notification coordinator
@@ -209,11 +233,17 @@ WEATHER-GPT/
 ## Features in Detail
 
 ### Hazard Risk Layers
-The map displays four types of environmental hazards:
+The map displays four types of environmental hazards with **global coverage**:
 - **Flood Risk:** Water accumulation and flooding potential
 - **Heat Risk:** Temperature extremes and heat waves
 - **Lightning Risk:** Electrical storm activity
 - **Visibility Risk:** Fog, haze, and visibility impairment
+
+**Dynamic Hazard Generation:**
+- Hazard data is automatically generated for any map view
+- Works for any location worldwide (no hardcoded locations)
+- Updates in real-time when map is moved or new location is searched
+- Risk levels are randomly generated for demonstration purposes
 
 Each risk level is color-coded:
 - 🔴 Red: High risk
@@ -271,13 +301,14 @@ Each risk level is color-coded:
   - Email and SMS channel control
 
 ### Agricultural Advisory Features
-- **Crop Database:** Comprehensive database with 10+ crops including:
-  - Cereals: Rice, Wheat, Maize
-  - Commercial: Cotton, Sugarcane
-  - Oilseeds: Groundnut
-  - Vegetables: Tomato
-  - Fruits: Banana, Coconut
+- **Crop Database:** Comprehensive database with 15+ crops including:
+  - Cereals: Rice, Wheat, Maize (with global varieties like Basmati, IR64, etc.)
+  - Commercial: Cotton, Sugarcane, Coffee, Cocoa
+  - Oilseeds: Groundnut, Soybean
+  - Vegetables: Potato, Tomato
+  - Fruits: Banana, Coconut, Grapes
   - Spices: Turmeric
+  - **Regional varieties** for different agricultural regions worldwide
 
 - **Crop Recommendations:** AI-powered crop suggestions based on:
   - Current weather conditions
@@ -504,6 +535,17 @@ This will verify:
 - Weather suitability assessment
 - Crop-specific recommendations
 - Agricultural service integration
+
+Run the global location test:
+```bash
+python test_global_locations.py
+```
+
+This will verify:
+- Weather API connectivity with global locations
+- Location parsing for international cities
+- API response handling
+- Note: Requires valid OpenWeatherMap API key for full functionality
 
 ## Deployment
 

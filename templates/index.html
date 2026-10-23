@@ -154,6 +154,11 @@
                     <button id="voice-listen" class="voice-listen" title="Voice Input">🎧</button>
                     <button id="voice-speak" class="voice-speak" title="Voice Output">🔊</button>
                 </div>
+                <div class="location-search">
+                    <input type="text" id="location-search" placeholder="🔍 Search any location worldwide..." 
+                           onkeypress="handleLocationSearch(event)">
+                    <button onclick="searchMapLocation()">Search</button>
+                </div>
             </div>
         </header>
 

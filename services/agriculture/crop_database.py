@@ -34,7 +34,7 @@ class CropDatabase:
                 'storm_impact_risk': 'high',
                 'ideal_soil_moisture': (60, 80),
                 'harvest_conditions': {'temp_range': (25, 32), 'humidity_range': (50, 70)},
-                'regional_varieties': ['BPT 5204', 'CO 51', 'ADT 43', 'ASD 16']
+                'regional_varieties': ['BPT 5204', 'CO 51', 'ADT 43', 'ASD 16', 'IR64', 'Swarna', 'PR 126', 'Basmati', 'Jasmine', 'Glutinous', 'Arborio', 'Carnaroli']
             },
             'wheat': {
                 'name': 'Wheat',
@@ -55,7 +55,7 @@ class CropDatabase:
                 'storm_impact_risk': 'medium',
                 'ideal_soil_moisture': (40, 60),
                 'harvest_conditions': {'temp_range': (20, 30), 'humidity_range': (30, 50)},
-                'regional_varieties': ['HD 2967', 'Lokwan', 'GW 322', 'PBW 343']
+                'regional_varieties': ['HD 2967', 'Lokwan', 'GW 322', 'PBW 343', 'Sharbati', 'Khapli', 'Durum', 'Spelt', 'Emmer', 'Einkorn']
             },
             'maize': {
                 'name': 'Maize (Corn)',
@@ -76,7 +76,7 @@ class CropDatabase:
                 'storm_impact_risk': 'high',
                 'ideal_soil_moisture': (50, 70),
                 'harvest_conditions': {'temp_range': (25, 35), 'humidity_range': (40, 60)},
-                'regional_varieties': ['Pioneer 30Y87', 'DeKalb 9140', 'NK 6240', 'Hybrid 2070']
+                'regional_varieties': ['Pioneer 30Y87', 'DeKalb 9140', 'NK 6240', 'Hybrid 2070', 'Dekalb', 'Pioneer', 'Syngenta', 'Bayer', 'Corteva', 'Local Hybrids']
             },
             'cotton': {
                 'name': 'Cotton',
@@ -118,7 +118,7 @@ class CropDatabase:
                 'storm_impact_risk': 'high',
                 'ideal_soil_moisture': (60, 80),
                 'harvest_conditions': {'temp_range': (20, 30), 'humidity_range': (40, 60)},
-                'regional_varieties': ['CO 86032', 'CO 85036', 'CO 91015', 'CO 96014']
+                'regional_varieties': ['CO 86032', 'CO 85036', 'CO 91015', 'CO 96014', 'Saccharum officinarum', 'Saccharum sinense', 'CP 77-400', 'CP 72-2085', 'Local varieties']
             },
             'groundnut': {
                 'name': 'Groundnut (Peanut)',
@@ -223,7 +223,112 @@ class CropDatabase:
                 'storm_impact_risk': 'very_high',
                 'ideal_soil_moisture': (65, 85),
                 'harvest_conditions': {'temp_range': (25, 32), 'humidity_range': (50, 70)},
-                'regional_varieties': ['Grand Naine', 'Rasthali', 'Poovan', 'Nendran']
+                'regional_varieties': ['Grand Naine', 'Rasthali', 'Poovan', 'Nendran', 'Cavendish', 'Gros Michel', 'Lady Finger', 'Red Banana', 'Local varieties']
+            },
+            'potato': {
+                'name': 'Potato',
+                'scientific_name': 'Solanum tuberosum',
+                'category': 'Vegetable',
+                'growth_duration_days': 90,
+                'optimal_temp_range': (15, 25),
+                'optimal_humidity_range': (60, 80),
+                'water_requirement': 'medium',
+                'optimal_rainfall_mm': (500, 800),
+                'sensitive_stages': {
+                    'tuber_initiation': {'temp_range': (18, 22), 'humidity_range': (65, 80)},
+                    'bulking': {'temp_range': (15, 20), 'humidity_range': (60, 75)}
+                },
+                'drought_tolerance': 'medium',
+                'flood_tolerance': 'low',
+                'wind_tolerance': 'medium',
+                'storm_impact_risk': 'medium',
+                'ideal_soil_moisture': (50, 70),
+                'harvest_conditions': {'temp_range': (15, 22), 'humidity_range': (40, 60)},
+                'regional_varieties': ['Russet', 'Yukon Gold', 'Red Pontiac', 'Desiree', 'Fingerling', 'Kufri Jyoti', 'Kufri Chandramukhi', 'Local varieties']
+            },
+            'soybean': {
+                'name': 'Soybean',
+                'scientific_name': 'Glycine max',
+                'category': 'Oilseed',
+                'growth_duration_days': 100,
+                'optimal_temp_range': (20, 30),
+                'optimal_humidity_range': (50, 70),
+                'water_requirement': 'medium',
+                'optimal_rainfall_mm': (450, 700),
+                'sensitive_stages': {
+                    'flowering': {'temp_range': (22, 28), 'humidity_range': (55, 75)},
+                    'pod_filling': {'temp_range': (20, 26), 'humidity_range': (50, 70)}
+                },
+                'drought_tolerance': 'medium',
+                'flood_tolerance': 'low',
+                'wind_tolerance': 'medium',
+                'storm_impact_risk': 'medium',
+                'ideal_soil_moisture': (45, 65),
+                'harvest_conditions': {'temp_range': (20, 28), 'humidity_range': (30, 50)},
+                'regional_varieties': ['Pioneer 93Y92', 'Asgrow 48X8', 'NK S31-K3', 'Local varieties', 'Glycine max varieties']
+            },
+            'coffee': {
+                'name': 'Coffee',
+                'scientific_name': 'Coffea arabica',
+                'category': 'Industrial Crop',
+                'growth_duration_days': 365,
+                'optimal_temp_range': (18, 25),
+                'optimal_humidity_range': (70, 85),
+                'water_requirement': 'high',
+                'optimal_rainfall_mm': (1200, 2000),
+                'sensitive_stages': {
+                    'flowering': {'temp_range': (20, 24), 'humidity_range': (75, 85)},
+                    'bean_development': {'temp_range': (18, 22), 'humidity_range': (70, 80)}
+                },
+                'drought_tolerance': 'low',
+                'flood_tolerance': 'medium',
+                'wind_tolerance': 'medium',
+                'storm_impact_risk': 'medium',
+                'ideal_soil_moisture': (60, 80),
+                'harvest_conditions': {'temp_range': (18, 24), 'humidity_range': (45, 60)},
+                'regional_varieties': ['Arabica', 'Robusta', 'Typica', 'Bourbon', 'Catimor', 'Local varieties']
+            },
+            'cocoa': {
+                'name': 'Cocoa',
+                'scientific_name': 'Theobroma cacao',
+                'category': 'Industrial Crop',
+                'growth_duration_days': 365,
+                'optimal_temp_range': (25, 32),
+                'optimal_humidity_range': (70, 90),
+                'water_requirement': 'high',
+                'optimal_rainfall_mm': (1500, 2500),
+                'sensitive_stages': {
+                    'flowering': {'temp_range': (26, 30), 'humidity_range': (80, 90)},
+                    'pod_development': {'temp_range': (25, 29), 'humidity_range': (75, 85)}
+                },
+                'drought_tolerance': 'low',
+                'flood_tolerance': 'medium',
+                'wind_tolerance': 'low',
+                'storm_impact_risk': 'high',
+                'ideal_soil_moisture': (65, 85),
+                'harvest_conditions': {'temp_range': (25, 30), 'humidity_range': (50, 70)},
+                'regional_varieties': ['Forastero', 'Criollo', 'Trinitario', 'Amelonado', 'Local varieties']
+            },
+            'grapes': {
+                'name': 'Grapes',
+                'scientific_name': 'Vitis vinifera',
+                'category': 'Fruit',
+                'growth_duration_days': 180,
+                'optimal_temp_range': (20, 30),
+                'optimal_humidity_range': (50, 70),
+                'water_requirement': 'medium',
+                'optimal_rainfall_mm': (400, 800),
+                'sensitive_stages': {
+                    'flowering': {'temp_range': (22, 28), 'humidity_range': (55, 75)},
+                    'fruit_set': {'temp_range': (20, 26), 'humidity_range': (50, 70)}
+                },
+                'drought_tolerance': 'medium',
+                'flood_tolerance': 'low',
+                'wind_tolerance': 'medium',
+                'storm_impact_risk': 'medium',
+                'ideal_soil_moisture': (50, 70),
+                'harvest_conditions': {'temp_range': (20, 28), 'humidity_range': (40, 60)},
+                'regional_varieties': ['Thompson Seedless', 'Cabernet Sauvignon', 'Chardonnay', 'Merlot', 'Local varieties']
             }
         }
     
