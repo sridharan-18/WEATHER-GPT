@@ -64,3 +64,6 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# Temp probe files (not tracked)
+scratch_probe/
