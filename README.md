@@ -1,20 +1,20 @@
-# 🌤️ Weather GPT - Interactive Hazard Map
+# Weather GPT - Interactive Hazard Map
 
 An interactive weather application with hazard mapping and AI-powered conversational assistance.
 
 ## Features
 
-### 🗺️ Interactive Hazard Map
+###  Interactive Hazard Map
 - **Leaflet-based map** with hyperlocal zoom capabilities
 - **Multiple hazard risk layers:**
-  - 🌊 Flood Risk
-  - 🔥 Heat Risk  
-  - ⚡ Lightning Risk
-  - 👁️ Visibility Risk
+  -  Flood Risk
+  -  Heat Risk  
+  -  Lightning Risk
+  -  Visibility Risk
 - Color-coded risk indicators (High/Medium/Low)
 - Click-to-explore location details
 
-### 🤖 AI Conversational Assistant
+###  AI Conversational Assistant
 - **GPT-powered weather Q&A** for natural language queries
 - **Actionable weather advice** tailored to current conditions
 - **Location-specific insights** with personalized recommendations
@@ -23,7 +23,7 @@ An interactive weather application with hazard mapping and AI-powered conversati
   - "Should I carry an umbrella?"
   - "Is it safe to travel tomorrow?"
 
-### 🌍 Multilingual Support
+###  Multilingual Support
 - **Tamil (தமிழ்)** - Full Tamil language support for weather information
 - **Hindi (हिंदी)** - Complete Hindi language interface
 - **Telugu (తెలుగు)** - Telugu language support
@@ -37,7 +37,7 @@ An interactive weather application with hazard mapping and AI-powered conversati
 - **Translated weather advice** in all supported languages
 - **Accessibility-first design** for non-English speakers
 
-### 🎤 Voice Assistant Integration
+###  Voice Assistant Integration
 - **Text-to-Speech (TTS)** - Get weather information spoken aloud
 - **Speech-to-Text (STT)** - Ask weather questions using voice commands
 - **Voice Commands** in multiple Indian languages
@@ -47,14 +47,14 @@ An interactive weather application with hazard mapping and AI-powered conversati
 - **Browser-native implementation** using Web Speech API
 - **Accessibility features** for visually impaired users
 
-### 🔔 Proactive Notifications
+###  Proactive Notifications
 - **Severe-weather alerts** via email and SMS
 - **Daily weather digests** with safety scores
 - **Real-time monitoring** of multiple locations
 - **Smart alert detection** based on weather conditions
 - **User subscription management** with customizable preferences
 
-### 🌾 Agricultural Advisory System
+###  Agricultural Advisory System
 - **Crop-specific recommendations** based on weather conditions
 - **Smart irrigation scheduling** with water conservation tips
 - **Farmer action plans** with immediate and long-term recommendations
