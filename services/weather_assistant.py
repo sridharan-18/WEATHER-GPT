@@ -110,7 +110,7 @@ class WeatherAssistant:
         temp = main.get('temp')
         humidity = main.get('humidity')
         weather_list = weather_data.get('weather', [])
-        description = weather_list[0]['description'].lower() if weather_list else ''
+        description = weather_list[0].get('description', '').lower() if weather_list else ''
         wind_speed = weather_data.get('wind', {}).get('speed', 0)
         visibility = weather_data.get('visibility', 10000) / 1000  # Convert to km
         

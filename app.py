@@ -70,7 +70,7 @@ def index():
 def chat():
     """Handle chat messages with AI integration"""
     data = request.get_json(silent=True)
-    if data is None:
+    if data is None or not isinstance(data, dict):
         return jsonify({'error': 'Invalid or missing JSON'}), 400
     user_message = data.get('message', '')
     
@@ -275,9 +275,6 @@ def generate_rule_based_response(user_message, weather_data):
                 advice.append("☁️ Partly cloudy - pleasant weather overall.")
             elif 'storm' in desc_lower or 'thunder' in desc_lower:
                 advice.append("⚡ Stormy conditions - stay indoors and avoid travel if possible.")
-
-        if isinstance(description, str) and ('storm' in description or 'thunder' in description):
-            advice.append("⚡ Stormy conditions - stay indoors and avoid travel if possible.")
         
         response = f"📍 Weather in {location}: {description}, {temp}°C (feels like {weather_data['main'].get('feels_like', temp)}°C)\n\n"
         response += "💡 Advice:\n" + "\n".join(f"• {tip}" for tip in advice)
