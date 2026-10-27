@@ -276,7 +276,7 @@ def generate_rule_based_response(user_message, weather_data):
             elif 'storm' in desc_lower or 'thunder' in desc_lower:
                 advice.append("⚡ Stormy conditions - stay indoors and avoid travel if possible.")
         
-        response = f"📍 Weather in {location}: {description}, {temp_display} (feels like {main.get('feels_like', temp)}°C)\n\n"
+        response = f"📍 Weather in {location}: {description}, {temp}°C (feels like {main.get('feels_like', temp)}°C)\n\n"
         response += "💡 Advice:\n" + "\n".join(f"• {tip}" for tip in advice)
         
         return response
