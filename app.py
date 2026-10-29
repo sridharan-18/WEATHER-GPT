@@ -15,7 +15,7 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'your_openai_api_key')
 
 # Initialize weather assistant service
 try:
-    from services import WeatherAssistant
+    from services.weather_assistant import WeatherAssistant
     weather_assistant = WeatherAssistant(
         openai_api_key=OPENAI_API_KEY,
         weather_api_key=WEATHER_API_KEY
@@ -24,7 +24,6 @@ try:
 except ImportError:
     ASSISTANT_AVAILABLE = False
     print("Weather assistant service not available. Using fallback implementation.")
-    # Fallback to inline implementation
     weather_assistant = None
 
 # Initialize notification services (optional - only if configured)
@@ -79,11 +78,12 @@ def chat():
     try:
         if ASSISTANT_AVAILABLE and weather_assistant:
             # Use modular weather assistant service
-            result = weather_assistant.process_query(user_message)
-            return jsonify(result)
+            response = weather_assistant.get_response(user_message)
+            return jsonify({'response': response})
         else:
             # Fallback to inline implementation
-            return chat_fallback(user_message)
+            response = chat_fallback(user_message)
+            return jsonify({'response': response})
             
     except Exception as e:
         print(f"Error: {e}")
@@ -92,24 +92,23 @@ def chat():
 
 def chat_fallback(user_message):
     """Fallback chat implementation when service is unavailable"""
-    import requests
-    
-    # Extract location from message if present
-    location = extract_location(user_message)
-    
-    if location:
-        # Get weather data for the location
-        weather_data = get_weather_data(location)
-        if weather_data:
-            # Generate AI response with weather context
-            ai_response = generate_ai_response(user_message, weather_data)
-            return jsonify({'response': ai_response})
+    # Try to use the service's internal fallback logic
+    try:
+        from services.weather_assistant import WeatherAssistant
+        assistant = WeatherAssistant(
+            openai_api_key=OPENAI_API_KEY,
+            weather_api_key=WEATHER_API_KEY
+        )
+        return assistant.get_response(user_message)
+    except:
+        # Ultimate fallback - simple response
+        message_lower = user_message.lower()
+        if 'hello' in message_lower or 'hi' in message_lower:
+            return "Hello! I'm your weather assistant. Please try again later or check the service configuration."
+        elif 'help' in message_lower:
+            return "I can help with weather information. The full service is currently unavailable."
         else:
-            return jsonify({'response': f"Sorry, I couldn't find weather data for {location}. Please try a different location or check the spelling."})
-    else:
-        # General AI response without weather data
-        ai_response = generate_ai_response(user_message, None)
-        return jsonify({'response': ai_response})
+            return "I'm sorry, but the weather service is currently unavailable. Please check the configuration or try again later."
 
 # Fallback functions (used when service is unavailable)
 def extract_location(message):
