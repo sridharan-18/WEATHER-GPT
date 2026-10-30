@@ -451,8 +451,22 @@ Each risk level is color-coded:
 - `GET /api/accessibility` - Get all accessibility features
   ```json
   {
-    "location": "Sulur",
-    "crops": ["rice", "wheat"]
+    "voice_assistant": {
+      "enabled": false,
+      "language": "en",
+      "supported_languages": { "en": "English", "ta": "Tamil", "hi": "Hindi" },
+      "voice_settings": { "rate": 1.0, "pitch": 1.0, "volume": 1.0 }
+    },
+    "multilingual_support": {
+      "enabled": true,
+      "current_language": "en",
+      "auto_detect": false
+    },
+    "high_contrast": { "enabled": false },
+    "text_size": {
+      "current": "medium",
+      "options": ["small", "medium", "large", "extra-large"]
+    }
   }
   ```
 

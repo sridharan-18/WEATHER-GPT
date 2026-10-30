@@ -39,7 +39,8 @@ class AlertDetector:
         
         try:
             main = weather_data.get('main', {})
-            weather = weather_data.get('weather', [{}])[0]
+            weather_list = weather_data.get('weather', [{}]) or [{}]
+            weather = weather_list[0]
             wind = weather_data.get('wind', {})
             visibility = weather_data.get('visibility', 10000)
             
