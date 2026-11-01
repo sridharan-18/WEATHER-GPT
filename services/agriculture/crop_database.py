@@ -3,7 +3,7 @@ Crop Database for Weather GPT
 Contains comprehensive crop information with weather requirements and growth stages
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -227,10 +227,25 @@ class CropDatabase:
             }
         }
     
-    def get_crop_info(self, crop_name: str) -> Dict:
-        """Get information for a specific crop"""
+    def get_crop_info(self, crop_name: str) -> Optional[Dict]:
+        """Get information for a specific crop.
+
+        Accepts both the internal key (e.g. 'rice', 'maize') and the display
+        name (e.g. 'Maize (Corn)' -> 'maize'). Previously only the internal
+        key worked, so callers passing a display name received None even
+        though the crop existed in the database.
+        """
+        # Try exact key match first (e.g. 'rice', 'maize')
         crop_key = crop_name.lower().replace(' ', '_')
-        return self.crops.get(crop_key, None)
+        if crop_key in self.crops:
+            return self.crops[crop_key]
+
+        # Fallback: search by display name (e.g. 'Maize (Corn)' -> 'maize')
+        for key, info in self.crops.items():
+            if info.get('name', '').lower() == crop_name.lower():
+                return info
+
+        return None
     
     def get_all_crops(self) -> List[Dict]:
         """Get information for all crops"""

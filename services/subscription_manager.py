@@ -68,7 +68,11 @@ class SubscriptionManager:
                 'email': email,
                 'name': name or email.split('@')[0],
                 'phone': phone,
-                'locations': locations or ['Sulur'],
+                # Use explicit None check so callers can pass an empty list
+                # (meaning "no specific locations") without being overridden
+                # by the default ['Sulur']. A falsy empty list would be
+                # silently replaced by the default, which is incorrect.
+                'locations': locations if locations is not None else ['Sulur'],
                 'email_enabled': True,
                 'sms_enabled': bool(phone),
                 'daily_digest': True,
