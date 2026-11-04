@@ -144,7 +144,15 @@ class SubscriptionManager:
             return False
     
     def _find_subscriber(self, email: str) -> Optional[Dict]:
-        """Find subscriber by email"""
+        """Find subscriber by email (case-insensitive).
+
+        Emails are stored lowercase (see add_subscriber / the API routes
+        which .lower() the address on input), so normalise the lookup key
+        here to make every email-based method — get/remove/update/toggle/
+        add/remove-location — work regardless of the case the client uses.
+        """
+        if isinstance(email, str):
+            email = email.strip().lower()
         for subscriber in self.subscriptions['subscribers']:
             if subscriber['email'] == email:
                 return subscriber
