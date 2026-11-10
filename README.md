@@ -154,7 +154,7 @@ Navigate to `http://localhost:5000`
 5. **Enable notifications (optional):**
    - Configure email/SMS settings in `.env`
    - Subscribe to daily digests and severe weather alerts
-   - Run the scheduler: `python start_scheduler.py`
+   - Enable SCHEDULER_ENABLED=true in your `.env` so the scheduler starts
 
 6. **Use agricultural features:**
    - Navigate to the Agriculture section in the web interface
@@ -172,7 +172,7 @@ WEATHER-GPT/
 ├── requirements.txt       # Python dependencies
 ├── .env.example          # Environment variables template
 ├── .gitignore            # Git ignore rules
-├── start_scheduler.py    # Standalone scheduler script
+├── services/               # Scheduler, notifications, agriculture, multilingual
 ├── test_notifications.py # Notification system test script
 ├── test_crop_db_direct.py # Agricultural features test script
 ├── services/
@@ -518,7 +518,7 @@ After=network.target
 Type=simple
 User=your_user
 WorkingDirectory=/path/to/WEATHER-GPT
-ExecStart=/usr/bin/python3 start_scheduler.py
+ExecStart=/usr/bin/python3 -c "from services.scheduler import start_scheduler; start_scheduler()"
 Restart=always
 
 [Install]
@@ -530,7 +530,7 @@ WantedBy=multi-user.target
 # /etc/supervisor/conf.d/weather-scheduler.conf
 [program:weather-scheduler]
 directory=/path/to/WEATHER-GPT
-command=python3 start_scheduler.py
+command=python3 -c "from services.scheduler import start_scheduler; start_scheduler()"
 autostart=true
 autorestart=true
 user=your_user
@@ -543,7 +543,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
-CMD ["python", "start_scheduler.py"]
+CMD ["python", "-c", "from services.scheduler import start_scheduler; start_scheduler()"]
 ```
 
 ## License

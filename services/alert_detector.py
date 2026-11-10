@@ -141,11 +141,11 @@ class AlertDetector:
                     'value': weather_id,
                     'threshold': 211
                 })
-            elif weather_id in [230, 231, 232]:  # Thunderstorm with heavy rain
+            elif weather_id in [230, 231, 232]:  # Drizzle rain (light/drizzle/heavy)
                 alerts.append({
-                    'type': 'Thunderstorm with Heavy Rain',
-                    'severity': 'critical',
-                    'message': 'Thunderstorm with heavy rain. Avoid travel.',
+                    'type': 'Drizzle',
+                    'severity': 'advisory',
+                    'message': 'Light to heavy drizzle. Carry an umbrella.',
                     'value': weather_id,
                     'threshold': 230
                 })
