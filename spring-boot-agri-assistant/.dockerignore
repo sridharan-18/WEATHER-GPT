@@ -1,0 +1,8 @@
+# Keep the Docker build context small and fast.
+# target/ is deliberately KEPT here (see below) so the Dockerfile can COPY the jar.
+.mvn
+src
+target/classes
+.idea
+.vscode
+*.log

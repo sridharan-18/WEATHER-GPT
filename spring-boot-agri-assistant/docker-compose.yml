@@ -1,0 +1,27 @@
+# docker-compose.yml
+# Wires both Spring Boot services onto ONE shared bridge network so they can reach
+# each other by container NAME (DNS), e.g. http://agri-advisory:8081
+services:
+  agri-portal:
+    build:
+      context: .
+      dockerfile: docker/portal.Dockerfile
+    container_name: agri-portal
+    ports:
+      - "8080:8080"
+    depends_on:
+      - agri-advisory
+
+  agri-advisory:
+    build:
+      context: .
+      dockerfile: docker/advisory.Dockerfile
+    container_name: agri-advisory
+    ports:
+      - "8081:8081"
+    networks:
+      - agri-net
+
+networks:
+  agri-net:
+    driver: bridge
