@@ -152,10 +152,15 @@ class EmailService:
     
     def _build_alert_email_body(self, location: str, weather_data: Dict, alerts: List[Dict]) -> str:
         """Build HTML body for weather alert email"""
-        temp = weather_data['main']['temp']
-        feels_like = weather_data['main']['feels_like']
-        humidity = weather_data['main']['humidity']
-        description = weather_data['weather'][0]['description']
+        # Use .get() with defaults so a partial/malformed API response
+        # (e.g. a missing or empty 'main'/'weather' object) does not raise
+        # a KeyError and silently abort email delivery.
+        main = weather_data.get('main', {}) or {}
+        temp = main.get('temp')
+        feels_like = main.get('feels_like')
+        humidity = main.get('humidity')
+        weather_list = weather_data.get('weather', []) or []
+        description = weather_list[0].get('description', 'unknown') if weather_list else 'unknown'
         
         alert_items = ""
         for alert in alerts:

@@ -320,7 +320,13 @@ def subscribe():
     name = data.get('name', '')
     phone = data.get('phone', '')
     locations = data.get('locations', ['Sulur'])
-    
+
+    # Validate locations is a list (or None, which the manager maps to the
+    # default ['Sulur']). Reject other types (e.g. a plain string) so
+    # get_subscribers_for_location, which iterates over this field, works.
+    if locations is not None and not isinstance(locations, list):
+        return jsonify({'error': 'locations must be a list of strings'}), 400
+
     if not email:
         return jsonify({'error': 'Email is required'}), 400
     
