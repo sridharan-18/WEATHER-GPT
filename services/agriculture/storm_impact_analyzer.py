@@ -97,7 +97,7 @@ class StormImpactAnalyzer:
         elif weather_id in [962, 961]:  # Hurricane
             severity = 'EXTREME'
             severity_score = 10
-        elif weather_id in [230, 231, 232]:  # Thunderstorm with heavy rain
+        elif weather_id in [230, 231, 232]:  # Light thunderstorm / thunderstorm with rain
             severity = 'SEVERE'
             severity_score = 8
         elif weather_id in [200, 201, 202, 211, 212, 221]:  # Thunderstorm
