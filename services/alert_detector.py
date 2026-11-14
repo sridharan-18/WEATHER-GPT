@@ -106,23 +106,50 @@ class AlertDetector:
             
             # Precipitation
             if 'rain' in weather_condition or 'drizzle' in weather_condition:
-                # Check for storm conditions
                 if 'storm' in weather_condition or 'thunder' in weather_condition:
-                    alerts.append({
-                        'type': 'Thunderstorm',
-                        'severity': 'critical',
-                        'message': 'Thunderstorm detected. Seek shelter immediately.',
-                        'value': weather_id,
-                        'threshold': 200
-                    })
+                    # Thunderstorm with rain
+                    if weather_id in [230, 231, 232]:
+                        alerts.append({
+                            'type': 'Thunderstorm',
+                            'severity': 'critical',
+                            'message': 'Thunderstorm with rain. Seek shelter immediately.',
+                            'value': weather_id,
+                            'threshold': 230
+                        })
+                    else:
+                        alerts.append({
+                            'type': 'Thunderstorm',
+                            'severity': 'critical',
+                            'message': 'Thunderstorm detected. Seek shelter immediately.',
+                            'value': weather_id,
+                            'threshold': 200
+                        })
                 else:
-                    alerts.append({
-                        'type': 'Rain',
-                        'severity': 'advisory',
-                        'message': 'Rain expected. Carry an umbrella.',
-                        'value': weather_id,
-                        'threshold': 500
-                    })
+                    # Rain/drizzle without storm; use specific severity for heavy rain and freezing rain
+                    if weather_id in [502, 503, 504]:
+                        alerts.append({
+                            'type': 'Heavy Rain',
+                            'severity': 'warning',
+                            'message': 'Heavy rainfall. Possible flooding.',
+                            'value': weather_id,
+                            'threshold': 502
+                        })
+                    elif weather_id in [511, 520, 521, 522]:
+                        alerts.append({
+                            'type': 'Freezing Rain',
+                            'severity': 'critical',
+                            'message': 'Freezing rain. Extremely dangerous conditions.',
+                            'value': weather_id,
+                            'threshold': 511
+                        })
+                    else:
+                        alerts.append({
+                            'type': 'Rain',
+                            'severity': 'advisory',
+                            'message': 'Rain expected. Carry an umbrella.',
+                            'value': weather_id,
+                            'threshold': 500
+                        })
             
             # Extreme weather codes (OpenWeatherMap specific)
             if weather_id in [200, 201, 202]:  # Thunderstorm
@@ -140,30 +167,6 @@ class AlertDetector:
                     'message': 'Heavy thunderstorm. Take immediate shelter.',
                     'value': weather_id,
                     'threshold': 211
-                })
-            elif weather_id in [230, 231, 232]:  # Light thunderstorm / thunderstorm with rain
-                alerts.append({
-                    'type': 'Thunderstorm',
-                    'severity': 'critical',
-                    'message': 'Thunderstorm with rain. Seek shelter immediately.',
-                    'value': weather_id,
-                    'threshold': 230
-                })
-            elif weather_id in [502, 503, 504]:  # Heavy rain
-                alerts.append({
-                    'type': 'Heavy Rain',
-                    'severity': 'warning',
-                    'message': 'Heavy rainfall. Possible flooding.',
-                    'value': weather_id,
-                    'threshold': 502
-                })
-            elif weather_id in [511, 520, 521, 522]:  # Freezing rain/showers
-                alerts.append({
-                    'type': 'Freezing Rain',
-                    'severity': 'critical',
-                    'message': 'Freezing rain. Extremely dangerous conditions.',
-                    'value': weather_id,
-                    'threshold': 511
                 })
             elif weather_id in [600, 601, 602]:  # Snow
                 alerts.append({
