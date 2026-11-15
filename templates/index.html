@@ -136,6 +136,7 @@
             <nav class="main-nav">
                 <button class="nav-btn active" onclick="showSection('weather')">🌤️ Weather</button>
                 <button class="nav-btn" onclick="showSection('agriculture')">🌾 Agriculture</button>
+                <button class="nav-btn" onclick="showSection('analytics')">📊 Analytics</button>
             </nav>
             <div class="header-controls">
                 <select id="language-selector" class="language-selector">
@@ -298,12 +299,138 @@
                 </div>
             </div>
         </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics-section" class="section">
+            <div class="analytics-content">
+                <div class="analytics-header">
+                    <h2>📊 Weather Intelligence Analytics Dashboard</h2>
+                    <p>Comprehensive weather analytics, hazard tracking, and comparative analysis</p>
+                </div>
+
+                <div class="analytics-controls">
+                    <div class="control-group">
+                        <label for="analytics-location">Location:</label>
+                        <input type="text" id="analytics-location" placeholder="Enter location (e.g., Sulur)" value="Sulur">
+                        <button onclick="loadAnalytics()">Load Analytics</button>
+                    </div>
+                    <div class="control-group">
+                        <label for="compare-locations">Compare Locations:</label>
+                        <input type="text" id="compare-locations" placeholder="Comma-separated (e.g., Sulur, Coimbatore, Chennai)">
+                        <button onclick="compareLocations()">Compare</button>
+                    </div>
+                </div>
+
+                <div class="analytics-dashboard">
+                    <!-- Weather Overview Cards -->
+                    <div class="analytics-cards">
+                        <div class="analytics-card temperature-card">
+                            <h3>🌡️ Temperature</h3>
+                            <div class="card-value" id="temp-value">--</div>
+                            <div class="card-label">Current</div>
+                            <div class="card-details">
+                                <span>Feels like: <span id="feels-like">--</span></span>
+                                <span>Min: <span id="temp-min">--</span></span>
+                                <span>Max: <span id="temp-max">--</span></span>
+                            </div>
+                        </div>
+
+                        <div class="analytics-card humidity-card">
+                            <h3>💧 Humidity</h3>
+                            <div class="card-value" id="humidity-value">--</div>
+                            <div class="card-label">%</div>
+                            <div class="card-details">
+                                <span>Pressure: <span id="pressure-value">--</span> hPa</span>
+                            </div>
+                        </div>
+
+                        <div class="analytics-card wind-card">
+                            <h3>💨 Wind</h3>
+                            <div class="card-value" id="wind-value">--</div>
+                            <div class="card-label">m/s</div>
+                            <div class="card-details">
+                                <span>Direction: <span id="wind-direction">--</span>°</span>
+                            </div>
+                        </div>
+
+                        <div class="analytics-card safety-card">
+                            <h3>🛡️ Safety Score</h3>
+                            <div class="card-value" id="safety-value">--</div>
+                            <div class="card-label" id="risk-level">--</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="analytics-charts">
+                        <div class="chart-container">
+                            <h3>Temperature Overview</h3>
+                            <canvas id="temperature-chart"></canvas>
+                        </div>
+
+                        <div class="chart-container">
+                            <h3>Humidity & Pressure</h3>
+                            <canvas id="humidity-chart"></canvas>
+                        </div>
+
+                        <div class="chart-container">
+                            <h3>Wind Analysis</h3>
+                            <canvas id="wind-chart"></canvas>
+                        </div>
+
+                        <div class="chart-container">
+                            <h3>Hazard Risk Assessment</h3>
+                            <canvas id="hazard-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Hazard Breakdown -->
+                    <div class="hazard-breakdown">
+                        <h3>⚠️ Hazard Risk Breakdown</h3>
+                        <div class="hazard-grid">
+                            <div class="hazard-item">
+                                <div class="hazard-icon">🌊</div>
+                                <div class="hazard-name">Flood Risk</div>
+                                <div class="hazard-level" id="flood-risk">--</div>
+                            </div>
+                            <div class="hazard-item">
+                                <div class="hazard-icon">🔥</div>
+                                <div class="hazard-name">Heat Risk</div>
+                                <div class="hazard-level" id="heat-risk">--</div>
+                            </div>
+                            <div class="hazard-item">
+                                <div class="hazard-icon">💨</div>
+                                <div class="hazard-name">Wind Risk</div>
+                                <div class="hazard-level" id="wind-risk">--</div>
+                            </div>
+                            <div class="hazard-item">
+                                <div class="hazard-icon">👁️</div>
+                                <div class="hazard-name">Visibility Risk</div>
+                                <div class="hazard-level" id="visibility-risk">--</div>
+                            </div>
+                            <div class="hazard-item">
+                                <div class="hazard-icon">⛈️</div>
+                                <div class="hazard-name">Storm Risk</div>
+                                <div class="hazard-level" id="storm-risk">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Results -->
+                    <div class="comparison-results" id="comparison-results" style="display: none;">
+                        <h3>📍 Location Comparison</h3>
+                        <div id="comparison-table"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="{{ url_for('static', filename='js/map.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
     <script src="{{ url_for('static', filename='js/agriculture.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
     <script src="{{ url_for('static', filename='js/multilingual.js') }}"></script>
     <script src="{{ url_for('static', filename='js/voice_assistant.js') }}"></script>
     <script>

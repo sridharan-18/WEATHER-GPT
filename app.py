@@ -473,6 +473,11 @@ def get_specific_crop_advice():
     weather_data = get_weather_data(location)
     if weather_data:
         advice = crop_advisor.get_specific_crop_advice(crop_name, weather_data)
+        # crop_advisor returns {'error': ...} when the crop is unknown;
+        # surface that as a 404 so the endpoint behaves like the sibling
+        # get_crop_info route instead of returning a 200 with an error body.
+        if 'error' in advice:
+            return jsonify(advice), 404
         return jsonify(advice)
     else:
         return jsonify({'error': 'Location not found'}), 404
@@ -781,6 +786,143 @@ def get_accessibility_features():
         return jsonify({'error': 'Accessibility features not available'}), 503
     
     return jsonify(voice_assistant.get_accessibility_features())
+
+# Analytics API endpoints
+@app.route('/api/analytics/weather/<location>')
+def get_weather_analytics(location):
+    """Get weather analytics for a location"""
+    weather_data = get_weather_data(location)
+    if not weather_data:
+        return jsonify({'error': 'Location not found'}), 404
+    
+    # Extract analytics data
+    main = weather_data.get('main', {})
+    weather_list = weather_data.get('weather', [])
+    wind = weather_data.get('wind', {})
+    
+    analytics = {
+        'location': weather_data.get('name'),
+        'temperature': {
+            'current': main.get('temp'),
+            'feels_like': main.get('feels_like'),
+            'min': main.get('temp_min'),
+            'max': main.get('temp_max')
+        },
+        'humidity': main.get('humidity'),
+        'pressure': main.get('pressure'),
+        'conditions': weather_list[0].get('description') if weather_list else 'unknown',
+        'wind': {
+            'speed': wind.get('speed'),
+            'direction': wind.get('deg')
+        },
+        'visibility': weather_data.get('visibility'),
+        'clouds': weather_data.get('clouds', {}).get('all'),
+        'safety_score': None,
+        'risk_level': None
+    }
+    
+    # Add safety score if available
+    if SERVICES_AVAILABLE:
+        score = alert_detector.calculate_safety_score(weather_data)
+        risk_level = alert_detector.get_risk_level(score)
+        analytics['safety_score'] = score
+        analytics['risk_level'] = risk_level
+    
+    return jsonify(analytics)
+
+@app.route('/api/analytics/hazards/<location>')
+def get_hazard_analytics(location):
+    """Get hazard risk analytics for a location"""
+    if not SERVICES_AVAILABLE:
+        return jsonify({'error': 'Notification services not available'}), 503
+    
+    weather_data = get_weather_data(location)
+    if not weather_data:
+        return jsonify({'error': 'Location not found'}), 404
+    
+    # Calculate hazard risks
+    score = alert_detector.calculate_safety_score(weather_data)
+    risk_level = alert_detector.get_risk_level(score)
+    
+    main = weather_data.get('main', {})
+    weather_list = weather_data.get('weather', [])
+    wind = weather_data.get('wind', {})
+    
+    # Specific hazard risks
+    temp = main.get('temp', 0)
+    humidity = main.get('humidity', 0)
+    wind_speed = wind.get('speed', 0)
+    visibility = weather_data.get('visibility', 10000)
+    
+    hazards = {
+        'location': weather_data.get('name'),
+        'overall_safety_score': score,
+        'overall_risk_level': risk_level,
+        'flood_risk': 'high' if humidity > 80 and weather_list and any('rain' in w.get('description', '').lower() for w in weather_list) else 'low',
+        'heat_risk': 'high' if temp > 35 else 'medium' if temp > 30 else 'low',
+        'wind_risk': 'high' if wind_speed > 20 else 'medium' if wind_speed > 10 else 'low',
+        'visibility_risk': 'high' if visibility < 1000 else 'medium' if visibility < 5000 else 'low',
+        'storm_risk': 'high' if weather_list and any('storm' in w.get('description', '').lower() or 'thunder' in w.get('description', '').lower() for w in weather_list) else 'low'
+    }
+    
+    return jsonify(hazards)
+
+@app.route('/api/analytics/compare', methods=['POST'])
+def compare_locations():
+    """Compare weather analytics between multiple locations"""
+    data = _get_json_body()
+    if data is None:
+        return jsonify({'error': 'Invalid or missing JSON'}), 400
+    
+    locations = data.get('locations', [])
+    if not locations or not isinstance(locations, list):
+        return jsonify({'error': 'Locations must be a list of strings'}), 400
+    
+    comparisons = []
+    for location in locations:
+        weather_data = get_weather_data(location)
+        if weather_data:
+            main = weather_data.get('main', {})
+            weather_list = weather_data.get('weather', [])
+            
+            comparison = {
+                'location': weather_data.get('name'),
+                'temperature': main.get('temp'),
+                'humidity': main.get('humidity'),
+                'conditions': weather_list[0].get('description') if weather_list else 'unknown'
+            }
+            
+            if SERVICES_AVAILABLE:
+                score = alert_detector.calculate_safety_score(weather_data)
+                comparison['safety_score'] = score
+                comparison['risk_level'] = alert_detector.get_risk_level(score)
+            
+            comparisons.append(comparison)
+    
+    return jsonify({
+        'comparisons': comparisons,
+        'count': len(comparisons)
+    })
+
+@app.route('/api/analytics/stats')
+def get_system_stats():
+    """Get system usage statistics"""
+    stats = {
+        'services': {
+            'weather_assistant': ASSISTANT_AVAILABLE,
+            'notifications': SERVICES_AVAILABLE,
+            'agriculture': AGRICULTURE_AVAILABLE,
+            'multilingual': MULTILINGUAL_AVAILABLE
+        }
+    }
+    
+    if SERVICES_AVAILABLE:
+        stats['subscribers'] = len(subscription_manager.get_all_subscribers())
+    
+    if AGRICULTURE_AVAILABLE:
+        stats['crops'] = len(crop_database.get_all_crops())
+    
+    return jsonify(stats)
 
 if __name__ == '__main__':
     # Start scheduler if enabled
