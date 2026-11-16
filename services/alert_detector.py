@@ -134,7 +134,7 @@ class AlertDetector:
                             'value': weather_id,
                             'threshold': 502
                         })
-                    elif weather_id in [511, 520, 521, 522]:
+                    elif weather_id in [511]:
                         alerts.append({
                             'type': 'Freezing Rain',
                             'severity': 'critical',
