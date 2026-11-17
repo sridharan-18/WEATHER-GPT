@@ -61,7 +61,7 @@ class StormImpactAnalyzer:
         
         # Get damage assessment
         damage_assessment = self._assess_potential_damage(
-            crop_info, storm_severity, current_growth_stage
+            crop_info, storm_severity, current_growth_stage, weather_data
         )
         
         return {
@@ -380,15 +380,15 @@ class StormImpactAnalyzer:
         
         return recovery
     
-    def _assess_potential_damage(self, crop: Dict, storm_severity: Dict, 
-                               growth_stage: str) -> Dict:
+    def _assess_potential_damage(self, crop: Dict, storm_severity: Dict,
+                                  growth_stage: str, weather_data: Dict) -> Dict:
         """Assess potential damage to different crop components"""
         severity = storm_severity['score']
-        
+
         damage_assessment = {
             'foliage_damage': self._assess_foliage_damage(crop, severity),
             'stem_damage': self._assess_stem_damage(crop, severity),
-            'root_damage': self._assess_root_damage(crop, severity, storm_severity),
+            'root_damage': self._assess_root_damage(crop, severity, storm_severity, weather_data),
             'reproductive_damage': self._assess_reproductive_damage(crop, severity, growth_stage),
             'quality_impact': self._assess_quality_impact(crop, severity, growth_stage),
             'yield_impact': self._assess_yield_impact(crop, severity, growth_stage)
@@ -433,10 +433,16 @@ class StormImpactAnalyzer:
             else:
                 return "Minimal stem damage risk"
     
-    def _assess_root_damage(self, crop: Dict, severity: float, storm_severity: Dict) -> str:
-        """Assess potential root damage"""
+    def _assess_root_damage(self, crop: Dict, severity: float, storm_severity: Dict,
+                             weather_data: Dict) -> str:
+        """Assess potential root damage
+
+        Uses the actual weather condition (from weather_data) to detect
+        rain/flooding, rather than the storm_severity description string
+        which never contains those keywords.
+        """
         flood_tolerance = crop.get('flood_tolerance', 'medium')
-        weather_condition = storm_severity.get('description', '').lower()
+        weather_condition = weather_data.get('weather', [{}])[0].get('description', '').lower()
         
         if 'rain' in weather_condition or 'flood' in weather_condition:
             if flood_tolerance == 'low':

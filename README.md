@@ -470,6 +470,66 @@ Each risk level is color-coded:
   }
   ```
 
+### Analytics Endpoints
+
+- `GET /api/analytics/weather/<location>` - Get weather analytics for a location
+  ```json
+  {
+    "location": "Sulur",
+    "temperature": { "current": 28, "feels_like": 29, "min": 25, "max": 32 },
+    "humidity": 75,
+    "pressure": 1012,
+    "conditions": "clear sky",
+    "wind": { "speed": 10, "direction": 180 },
+    "visibility": 10000,
+    "clouds": 20,
+    "safety_score": null,
+    "risk_level": null
+  }
+  ```
+- `GET /api/analytics/hazards/<location>` - Get hazard risk analytics for a location
+  ```json
+  {
+    "location": "Sulur",
+    "overall_safety_score": 100,
+    "overall_risk_level": "Low Risk",
+    "flood_risk": "low",
+    "heat_risk": "low",
+    "wind_risk": "low",
+    "visibility_risk": "low",
+    "storm_risk": "low"
+  }
+  ```
+- `POST /api/analytics/compare` - Compare weather analytics between multiple locations
+  ```json
+  {
+    "comparisons": [
+      {
+        "location": "Sulur",
+        "temperature": 28,
+        "humidity": 75,
+        "conditions": "clear sky",
+        "safety_score": 100,
+        "risk_level": "Low Risk"
+      }
+    ],
+    "count": 1
+  }
+  ```
+- `GET /api/analytics/stats` - Get system usage statistics
+  ```json
+  {
+    "services": {
+      "weather_assistant": true,
+      "notifications": true,
+      "agriculture": true,
+      "multilingual": true
+    },
+    "subscribers": 0,
+    "crops": 10
+  }
+  ```
+
 ## Testing
 
 Run the notification system test:
