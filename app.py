@@ -153,7 +153,9 @@ def extract_location(message):
                     break
             potential_location = ' '.join(location_words)
             if potential_location and len(potential_location) > 2:
-                return potential_location.title()
+                # Preserve original casing (only uppercase the first char).
+                # str.title() would mangle camelCase names like "InvalidCity".
+                return potential_location[0].upper() + potential_location[1:]
     return None
 
 

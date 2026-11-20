@@ -236,7 +236,8 @@ class TestWeatherAssistant(unittest.TestCase):
         result = self.assistant.process_query("What's the weather in InvalidCity?")
         
         self.assertFalse(result['success'])
-        self.assertEqual(result['location'], 'Invalidcity')
+        # Fixed: location casing is now preserved ("InvalidCity", not "Invalidcity")
+        self.assertEqual(result['location'], 'InvalidCity')
         self.assertIn('response', result)
     
     def test_process_query_without_location(self):

@@ -34,22 +34,24 @@ class WeatherAssistant:
         Returns:
             Extracted location or None
         """
-        message_lower = message.lower()
+        message_lower_words = message.lower().split()
         location_keywords = ['in', 'at', 'for', 'near']
         filler_words = {'today', 'tomorrow', 'and', 'please', 'if', 'the', 'a', 'an', 'it', 'of', 'on', 'to', 'with', 'from', 'is'}
 
-        # Match keywords as whole words, then use the text after the keyword.
-        # Whole-word matching avoids matching substrings inside words like
-        # "weather" (contains "at") or "wind" (contains "in").
-        words = message_lower.split()
-        for index, word in enumerate(words):
+        # Match keywords as whole words (on the lowercased message), but take
+        # the text after the keyword from the ORIGINAL message so the
+        # location's casing is preserved. Whole-word matching avoids matching
+        # substrings inside words like "weather" (contains "at") or "wind"
+        # (contains "in").
+        words = message.split()
+        for index, word in enumerate(message_lower_words):
             if word in location_keywords:
                 # Take up to 2 words after the keyword, stopping at filler words
                 # like "today" or "tomorrow". This prevents trailing words from
                 # being incorrectly included in the extracted location.
                 location_words = []
                 for w in words[index + 1:]:
-                    w = w.strip('?.,!:\t')
+                    w = w.strip('?.,!:\\t')
                     if not w:
                         continue
                     if w.lower() in filler_words:
@@ -60,7 +62,10 @@ class WeatherAssistant:
                 location = ' '.join(location_words)
 
                 if location and len(location) > 2:
-                    return location.title()
+                    # Preserve original casing: capitalise only the first
+                    # character, so a camelCase location like "InvalidCity"
+                    # stays "InvalidCity" (str.title() would mangle it).
+                    return location[0].upper() + location[1:]
 
         return None
 
