@@ -173,9 +173,6 @@ WEATHER-GPT/
 ├── .env.example          # Environment variables template
 ├── .gitignore            # Git ignore rules
 ├── services/               # Scheduler, notifications, agriculture, multilingual
-├── test_notifications.py # Notification system test script
-├── test_crop_db_direct.py # Agricultural features test script
-├── services/
 │   ├── __init__.py      # Services package initialization
 │   ├── notification_service.py  # Main notification coordinator
 │   ├── email_service.py  # Email notification handler
@@ -193,6 +190,8 @@ WEATHER-GPT/
 │       ├── irrigation_scheduler.py  # Smart irrigation scheduling
 │       ├── harvest_advisor.py   # Harvest timing recommendations
 │       └── storm_impact_analyzer.py # Storm impact analysis
+├── test_notifications.py # Notification system test script
+├── test_crop_db_direct.py # Agricultural features test script
 ├── static/
 │   ├── css/
 │   │   └── style.css     # Application styling
