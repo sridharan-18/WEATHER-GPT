@@ -73,9 +73,8 @@ def chat():
     if data is None or not isinstance(data, dict):
         return jsonify({'error': 'Invalid or missing JSON'}), 400
     user_message = data.get('message', '')
-    
     if not user_message:
-        return jsonify({'response': 'Please provide a message.'})
+        return jsonify({'error': 'Message is required'}), 400
     
     try:
         if ASSISTANT_AVAILABLE and weather_assistant:
